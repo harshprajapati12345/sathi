@@ -1,5 +1,11 @@
 <?php
 declare(strict_types=1);
+
+if (!isset($ADMIN_PUBLIC) || !$ADMIN_PUBLIC) {
+    require_once __DIR__ . '/auth.php';
+    shadikibaat_admin_require_auth();
+}
+
 $pageTitleSafe = isset($pageTitle) ? (string) $pageTitle : 'Admin';
 if (!isset($adminCurrent)) {
     $adminCurrent = '';
@@ -16,6 +22,7 @@ if (!isset($adminCurrent)) {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="assets/css/admin-style.css">
 </head>
 <body class="admin-body">
   <div class="admin-layout">

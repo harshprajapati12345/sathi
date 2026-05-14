@@ -2,6 +2,13 @@
 declare(strict_types=1);
 
 define('SATHI_ADMIN_ROOT', dirname(__DIR__));
+define('SATHI_PROJECT_ROOT', dirname(SATHI_ADMIN_ROOT));
+
+require_once SATHI_PROJECT_ROOT . '/config/database.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $ADMIN_NAV = require SATHI_ADMIN_ROOT . '/includes/nav-config.php';
 

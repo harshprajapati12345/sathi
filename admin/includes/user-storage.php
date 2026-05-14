@@ -1,108 +1,128 @@
 <?php
-declare(strict_types=1);
+/**
+ * User Storage using MySQLi (Aligned with Actual Schema)
+ */
+require_once dirname(__DIR__, 2) . '/config/database.php';
 
-function sathi_user_storage_path(): string
+function sathi_user_repo_find_by_email($email)
 {
-    return dirname(__DIR__, 2) . '/data/users.json';
+    $db = sathi_db();
+    $email = $db->real_escape_string(strtolower(trim($email)));
+    
+    $stmt = $db->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    
+    return sathi_user_normalize_row($row);
 }
 
-function sathi_user_storage_load(): array
+function sathi_user_repo_find_by_id($id)
 {
-    $path = sathi_user_storage_path();
-    if (!is_file($path)) {
-        return [];
-    }
+    $db = sathi_db();
+    $id = (int)$id;
+    
+    $stmt = $db->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
 
-    $content = file_get_contents($path);
-    if ($content === false) {
-        return [];
-    }
-
-    $data = json_decode($content, true);
-    return is_array($data) ? $data : [];
+    return sathi_user_normalize_row($row);
 }
 
-function sathi_user_storage_save(array $users): bool
+function sathi_user_touch_login($userId)
 {
-    $path = sathi_user_storage_path();
-    $json = json_encode(array_values($users), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    if ($json === false) {
-        return false;
-    }
-
-    return file_put_contents($path, $json) !== false;
+    $db = sathi_db();
+    $userId = (int)$userId;
+    $db->query("UPDATE users SET last_login_at = NOW(), last_active_at = NOW() WHERE id = $userId");
 }
 
-function sathi_user_storage_find(string $email): ?array
+function sathi_users_list_all($limit = 200)
 {
-    $email = strtolower(trim($email));
-    if ($email === '') {
-        return null;
-    }
-
-    foreach (sathi_user_storage_load() as $user) {
-        if (isset($user['email']) && strtolower($user['email']) === $email) {
-            return $user;
+    $db = sathi_db();
+    $limit = (int)$limit;
+    $result = $db->query("SELECT * FROM users ORDER BY created_at DESC LIMIT $limit");
+    
+    $rows = [];
+    if ($result) {
+        while($row = $result->fetch_assoc()) {
+            $rows[] = $row;
         }
     }
-
-    return null;
+    return $rows;
 }
 
-function sathi_user_storage_find_index(string $email): ?int
+/**
+ * Filter users by status
+ */
+function sathi_users_list_by_status($status, $limit = 200)
 {
-    $email = strtolower(trim($email));
-    if ($email === '') {
-        return null;
-    }
-
-    $users = sathi_user_storage_load();
-    foreach ($users as $index => $user) {
-        if (isset($user['email']) && strtolower($user['email']) === $email) {
-            return $index;
+    $db = sathi_db();
+    $status = $db->real_escape_string($status);
+    $limit = (int)$limit;
+    $result = $db->query("SELECT * FROM users WHERE status = '$status' ORDER BY created_at DESC LIMIT $limit");
+    
+    $rows = [];
+    if ($result) {
+        while($row = $result->fetch_assoc()) {
+            $rows[] = $row;
         }
     }
-
-    return null;
+    return $rows;
 }
 
-function sathi_user_storage_upsert(array $user): bool
+/**
+ * List paid members
+ */
+function sathi_users_list_paid($limit = 200)
 {
-    $email = isset($user['email']) ? strtolower(trim((string) $user['email'])) : '';
-    if ($email === '') {
-        return false;
-    }
-
-    $users = sathi_user_storage_load();
-    foreach ($users as $index => $existing) {
-        if (isset($existing['email']) && strtolower($existing['email']) === $email) {
-            $users[$index] = array_merge($existing, $user, ['email' => $email, 'updated_at' => date('c')]);
-            return sathi_user_storage_save($users);
+    $db = sathi_db();
+    $limit = (int)$limit;
+    $result = $db->query("SELECT * FROM users WHERE paid_member = 1 ORDER BY created_at DESC LIMIT $limit");
+    
+    $rows = [];
+    if ($result) {
+        while($row = $result->fetch_assoc()) {
+            $rows[] = $row;
         }
     }
-
-    $user['email'] = $email;
-    $user['updated_at'] = date('c');
-    $users[] = $user;
-    return sathi_user_storage_save($users);
+    return $rows;
 }
 
-function sathi_user_storage_update_status(string $email, string $status): bool
+/**
+ * Normalizes a user database row into a consistent format
+ */
+function sathi_user_normalize_row($row)
 {
-    $email = strtolower(trim($email));
-    $status = strtolower(trim($status));
-    if ($email === '' || $status === '') {
-        return false;
-    }
+    if (!$row) return null;
+    
+    $row['name'] = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+    if ($row['name'] === '') $row['name'] = 'Member';
+    
+    $row['status'] = $row['status'] ?? 'pending';
+    $row['paid_member'] = (int)($row['paid_member'] ?? 0);
+    $row['membership_status'] = $row['membership_status'] ?? 'free';
+    
+    return $row;
+}
 
-    $users = sathi_user_storage_load();
-    foreach ($users as $index => $user) {
-        if (isset($user['email']) && strtolower($user['email']) === $email) {
-            $users[$index]['status'] = $status;
-            $users[$index]['updated_at'] = date('c');
-            return sathi_user_storage_save($users);
-        }
-    }
+/**
+ * Updated to match the parameters expected by existing code
+ */
+function sathi_user_storage_update_status_by_id($id, $status, $approvedBy = null, $reason = null)
+{
+    $db = sathi_db();
+    $id = (int)$id;
+    $status = $db->real_escape_string($status);
+    
+    $approvedAt = $status === 'approved' ? 'NOW()' : 'NULL';
+    
+    $stmt = $db->prepare("UPDATE users SET status = ?, approved_by = ?, rejection_reason = ?, approved_at = $approvedAt WHERE id = ?");
+    $stmt->bind_param("sisi", $status, $approvedBy, $reason, $id);
+    return $stmt->execute();
+}
 
-    return false;
+/** Alias for simpler calls */
+function sathi_user_update_status($id, $status) {
+    return sathi_user_storage_update_status_by_id($id, $status);
 }

@@ -1,55 +1,69 @@
 <?php
-require_once __DIR__ . '/session_init.php';
-if (empty($_SESSION['sathi_registration_complete'])) {
-    header('Location: register.php');
-    exit;
-}
-
-$approvalStatus = isset($_SESSION['sathi_registration_status']) ? strtolower((string) $_SESSION['sathi_registration_status']) : 'pending';
-if ($approvalStatus !== 'approved') {
-    $pageTitle = 'Awaiting Admin Approval';
-    $navActive = 'home';
-    include 'header.php';
-    $statusLabel = $approvalStatus === 'rejected' ? 'rejected' : 'pending approval';
-    ?>
-    <main class="site-message">
-        <div class="container" style="max-width: 680px; padding: 80px 20px; text-align: center;">
-            <span style="display:inline-flex; align-items:center; gap:0.7rem; font-size:1.75rem;">🔒</span>
-            <h1 style="margin: 24px 0 12px; font-size: 2.25rem;"><?php echo $approvalStatus === 'rejected' ? 'Profile Rejected' : 'Pending Approval'; ?></h1>
-            <p style="font-size: 1rem; line-height: 1.8; color: #333; margin: 0 auto 24px; max-width: 520px;">
-                <?php if ($approvalStatus === 'rejected'): ?>
-                    Your account has been rejected by the admin. Please contact support if you believe this is a mistake.
-                <?php else: ?>
-                    Your profile is waiting for admin approval. You will receive access to the dashboard once your registration is approved.
-                <?php endif; ?>
-            </p>
-            <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
-                <a href="register.php" style="background:#e94e77;color:#fff;padding:14px 24px;border-radius:999px;text-decoration:none;">Edit registration</a>
-                <a href="login.php" style="border:1px solid #e94e77;color:#e94e77;padding:14px 24px;border-radius:999px;text-decoration:none;">Return to login</a>
-            </div>
-        </div>
-    </main>
-    <?php
-    include 'footer.php';
-    exit;
-}
+require_once __DIR__ . '/helpers/auth_helper.php';
+sathi_require_approval();
 
 $pageTitle = "ShadikiBaat – Where Relationships Begin | Find Your Perfect Match";
 $navActive = 'home';
 include 'header.php';
 ?>
+<?php
+$db = sathi_db();
+
+// Fetch Homepage Banner
+$bannerQuery = $db->query("SELECT title, subtitle, image FROM homepage_banners WHERE status = 1 ORDER BY id DESC LIMIT 1");
+$banner = $bannerQuery ? $bannerQuery->fetch_assoc() : null;
+
+$heroBg = !empty($banner['image']) ? $banner['image'] : 'assets/hero_couple.png';
+if (!empty($banner['image']) && strpos($banner['image'], 'uploads/') === 0) {
+    $heroBg = $banner['image'];
+}
+
+$heroTitle = !empty($banner['title']) ? htmlspecialchars($banner['title'], ENT_QUOTES, 'UTF-8') : 'Find Your <span class="accent">Perfect Match</span>';
+$heroSub = !empty($banner['subtitle']) ? htmlspecialchars($banner['subtitle'], ENT_QUOTES, 'UTF-8') : 'Smart matchmaking with real profiles, verified identities, and AI-powered suggestions.';
+
+// Fetch Success Stories
+$storiesQuery = $db->query("SELECT groom_name, bride_name, story, image, created_at FROM success_stories WHERE status = 1 ORDER BY id DESC LIMIT 5");
+$storiesData = $storiesQuery ? $storiesQuery->fetch_all(MYSQLI_ASSOC) : [];
+$dynamicTestimonials = [];
+foreach ($storiesData as $s) {
+    $img = !empty($s['image']) ? $s['image'] : 'assets/testimonial_couple.png';
+    if (!empty($s['image']) && strpos($s['image'], 'uploads/') === 0) {
+        $img = $s['image'];
+    }
+    $dynamicTestimonials[] = [
+        'name' => htmlspecialchars(trim($s['groom_name'] . ' & ' . $s['bride_name']), ENT_QUOTES, 'UTF-8'),
+        'loc' => 'Verified Couple 📍',
+        'quote' => '"' . htmlspecialchars($s['story'], ENT_QUOTES, 'UTF-8') . '"',
+        'badge' => 'Married ' . date('M Y', strtotime($s['created_at'])),
+        'img' => htmlspecialchars($img, ENT_QUOTES, 'UTF-8')
+    ];
+}
+// Fallback if no stories
+if (empty($dynamicTestimonials)) {
+    $dynamicTestimonials[] = [
+        'name' => 'Riya & Aditya',
+        'loc' => 'Mumbai to Pune 📍',
+        'quote' => '"Shadikibaat made our journey so easy! We found each other through their AI recommendations and it was love at first chat."',
+        'badge' => 'Married Nov 2024',
+        'img' => 'assets/testimonial_couple.png'
+    ];
+}
+
+// Fetch Blogs
+$blogsQuery = $db->query("SELECT title, slug, image, content, created_at FROM blogs WHERE status = 'published' ORDER BY id DESC LIMIT 3");
+$latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
+?>
 
 <!-- ═══ HERO SECTION ═══ -->
 <section class="hero hero--fullbleed" id="home">
-    <div class="hero-bg" style="background-image: url('assets/hero_couple.png');" role="img"
-        aria-label="Indian bride and groom in wedding attire"></div>
+    <div class="hero-bg" style="background-image: url('<?php echo htmlspecialchars($heroBg, ENT_QUOTES, 'UTF-8'); ?>');" role="img"
+        aria-label="Hero background image"></div>
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="container hero-inner">
         <div class="hero-text-block fade-up">
             <div class="hero-label">WHERE RELATIONSHIPS BEGIN ❤️</div>
-            <h1>Find Your <span class="accent">Perfect Match</span></h1>
-            <p class="hero-sub">Smart matchmaking with real profiles, verified identities, and AI-powered suggestions.
-            </p>
+            <h1><?php echo $heroTitle; ?></h1>
+            <p class="hero-sub"><?php echo $heroSub; ?></p>
 
             <!-- Search/Filter Bar -->
             <div class="search-bar">
@@ -93,7 +107,7 @@ include 'header.php';
                         <option>Hyderabad</option>
                     </select>
                 </div>
-                <button type="button" class="btn-cta" onclick="location.href='register.php'"><i
+                <button type="button" class="btn-cta" onclick="location.href='matches.php'"><i
                         class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Show Matches</span></button>
             </div>
         </div>
@@ -181,35 +195,171 @@ include 'header.php';
                 <div class="section-label">FEATURED MATCHES ——</div>
                 <h2>Discover verified profiles that match your preferences</h2>
             </div>
-            <button class="btn-outline" onclick="location.href='register.php'">View All Matches</button>
+            <button class="btn-outline" onclick="location.href='matches.php'">View All Matches</button>
         </div>
 
         <div class="profiles-grid">
             <?php
-            $profiles = [
-                ['name' => 'Priya S.', 'age' => '26', 'rel' => 'Hindu', 'loc' => 'Mumbai, Maharashtra', 'edu' => 'MBA, IIM Bangalore', 'job' => 'Marketing Manager', 'img' => 'assets/profile_1.png'],
-                ['name' => 'Ananya R.', 'age' => '24', 'rel' => 'Hindu', 'loc' => 'Bangalore, Karnataka', 'edu' => 'B.Tech, IIT Delhi', 'job' => 'Software Engineer', 'img' => 'assets/profile_2.png'],
-                ['name' => 'Neha K.', 'age' => '27', 'rel' => 'Hindu', 'loc' => 'Delhi, Delhi', 'edu' => 'M.Com, Symbiosis', 'job' => 'HR Manager', 'img' => 'assets/profile_3.png'],
-                ['name' => 'Pooja M.', 'age' => '25', 'rel' => 'Jain', 'loc' => 'Pune, Maharashtra', 'edu' => 'M.Com, Pune University', 'job' => 'Accountant', 'img' => 'assets/profile_4.png'],
-                ['name' => 'Ritika T.', 'age' => '28', 'rel' => 'Hindu', 'loc' => 'Hyderabad, Telangana', 'edu' => 'BBA, Osmania University', 'job' => 'Business Analyst', 'img' => 'assets/profile_5.png'],
-            ];
-            foreach ($profiles as $p): ?>
+            // Dynamic Profile Fetching (Homepage)
+            require_once __DIR__ . '/includes/registration-config.php';
+            // Ensure DB and storage are available
+            if (!function_exists('sathi_users_list_by_status')) {
+                require_once __DIR__ . '/admin/includes/user-storage.php';
+            }
+            if (!function_exists('sathi_db')) {
+                require_once __DIR__ . '/config/database.php';
+            }
+            $masters = sathi_registration_masters();
+
+            // Helper to get label from value
+            $getLabel = function ($listName, $value) use ($masters) {
+                if (empty($value))
+                    return '—';
+                $list = $masters[$listName] ?? [];
+                // Handle nested geo lists
+                if ($listName === 'cities') {
+                    foreach ($masters['geo']['cities'] as $stateCode => $cityList) {
+                        foreach ($cityList as $item) {
+                            if ($item['value'] == $value)
+                                return $item['label'];
+                        }
+                    }
+                } elseif ($listName === 'states') {
+                    foreach ($masters['geo']['states'] as $countryCode => $stateList) {
+                        foreach ($stateList as $item) {
+                            if ($item['value'] == $value)
+                                return $item['label'];
+                        }
+                    }
+                } else {
+                    foreach ($list as $item) {
+                        if ($item['value'] == $value)
+                            return $item['label'];
+                    }
+                }
+                return ucfirst(str_replace('_', ' ', (string) $value));
+            };
+
+            // Age Calculator
+            $calculateAge = function ($dob) {
+                if (empty($dob))
+                    return '—';
+                try {
+                    $birthDate = new DateTime($dob);
+                    $today = new DateTime();
+                    return $today->diff($birthDate)->y . ' yrs';
+                } catch (Exception $e) {
+                    return '—';
+                }
+            };
+
+            // Fetch Approved Users
+            $rawRows = sathi_users_list_by_status('approved', 8);
+            $profiles = [];
+
+            foreach ($rawRows as $r) {
+                $fullName = trim(($r['first_name'] ?? '') . ' ' . ($r['last_name'] ?? ''));
+                if (empty($fullName))
+                    $fullName = 'Member ' . ($r['id'] ?? '');
+
+                // Decode extra details from about_me
+                $extra = [];
+                if (!empty($r['about_me'])) {
+                    $extra = json_decode($r['about_me'], true) ?: [];
+                }
+
+                // Format data for the card and modal
+                $profiles[] = [
+                    'id' => $r['id'],
+                    'profile_id' => $r['profile_id'] ?? 'N/A',
+                    'name' => $fullName,
+                    'gender' => ucfirst($r['gender'] ?? 'N/A'),
+                    'mobile' => $r['mobile'] ?? 'N/A',
+                    'whatsapp' => $r['whatsapp'] ?? 'N/A',
+                    'joined' => !empty($r['created_at']) ? date('M j, Y', strtotime($r['created_at'])) : 'N/A',
+                    'membership' => ucfirst($r['membership_status'] ?? 'Free'),
+                    'payment_id' => $r['razorpay_payment_id'] ?? 'N/A',
+                    'age_val' => $calculateAge($r['dob'] ?? ''),
+                    'age' => $calculateAge($r['dob'] ?? '') . ' · ' . ($r['religion'] ?? $getLabel('religion', $r['religion_id'] ?? '')),
+                    'dob' => $r['dob'] ?? 'N/A',
+                    'loc' => $getLabel('cities', $r['city_id'] ?? '') . ', ' . $getLabel('states', $r['state_id'] ?? ''),
+                    'edu' => $getLabel('education', $r['education_id'] ?? ''),
+                    'job' => $getLabel('occupation', $r['occupation_id'] ?? ''),
+                    'religion' => $r['religion'] ?? $getLabel('religion', $r['religion_id'] ?? ''),
+                    'mother_tongue' => $r['mother_tongue_val'] ?? $getLabel('mother_tongue', $r['mother_tongue_id'] ?? ''),
+                    'marital_status' => $r['marital_status_val'] ?? $getLabel('marital_status', $r['marital_status_id'] ?? ''),
+                    'which_temple' => $r['which_temple'] ?? 'N/A',
+                    'img' => !empty($r['profile_photo']) && file_exists(__DIR__ . '/' . $r['profile_photo'])
+                        ? $r['profile_photo']
+                        : ($r['gender'] === 'female'
+                            ? 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?q=80&w=1000'
+                            : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000'),
+
+                    // Extra Details directly from row
+                    'digamber' => strtoupper($r['digamber_jain'] ?? 'NO'),
+                    'birth_time' => $r['birth_time'] ?? 'N/A',
+                    'birth_place' => $r['birth_place'] ?? 'N/A',
+                    'star' => $r['star'] ?? 'N/A',
+                    'rasi' => $r['rasi'] ?? 'N/A',
+                    'dosh' => $r['dosh'] ?? 'N/A',
+                    'native_place' => ($r['native_city'] ?? '') . ', ' . ($r['native_state'] ?? '') . ', ' . ($r['native_country'] ?? ''),
+                    'gotra' => $r['gotra'] ?? $getLabel('gotra', $r['caste_id'] ?? ''),
+
+                    // Family
+                    'father_name' => $r['father_name'] ?? 'N/A',
+                    'father_mobile' => $r['father_mobile'] ?? 'N/A',
+                    'father_income' => $r['father_income'] ?? 'N/A',
+                    'mother_name' => $r['mother_name'] ?? 'N/A',
+                    'bro_total' => $r['bro_total'] ?? 0,
+                    'bro_married' => $r['bro_married'] ?? 0,
+                    'sis_total' => $r['sis_total'] ?? 0,
+                    'sis_married' => $r['sis_married'] ?? 0,
+                    'about_text' => $r['about_me'] ?? 'N/A',
+                    'relatives' => $r['relative_details'] ?? 'N/A'
+                ];
+            }
+
+            if (empty($profiles)): ?>
+                <div class="no-results"
+                    style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 20px;">
+                    <i class="fas fa-search" style="font-size: 48px; color: var(--match-pink); margin-bottom: 20px;"></i>
+                    <h3>No matches found yet</h3>
+                    <p>We're verifying new profiles. Please check back shortly!</p>
+                </div>
+            <?php endif; ?>
+            <?php foreach ($profiles as $p): ?>
                 <div class="profile-card fade-up">
-                    <div class="profile-img">
+                    <div class="profile-img-wrap">
+                        <div class="profile-favorite"><i class="far fa-heart"></i></div>
                         <img src="<?php echo $p['img']; ?>" alt="<?php echo $p['name']; ?>" loading="lazy">
-                        <button class="heart-btn heart-beat">♡</button>
                     </div>
                     <div class="profile-info">
-                        <div class="profile-name"><?php echo $p['name']; ?> <span class="verified"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verified</span></div>
-                        <div class="profile-meta"><?php echo $p['age']; ?> yrs · <?php echo $p['rel']; ?></div>
-                        <div class="profile-details">
-                            <span>📍 <?php echo $p['loc']; ?></span>
-                            <span>🎓 <?php echo $p['edu']; ?></span>
-                            <span>💼 <?php echo $p['job']; ?></span>
+                        <div class="profile-name">
+                            <?php echo $p['name']; ?>
+                            <span class="verified-tag"><i class="fas fa-check-circle"></i> Verified</span>
                         </div>
+                        <div class="profile-meta-main"><?php echo $p['age']; ?></div>
+
+                        <div class="profile-details-list">
+                            <div class="profile-detail-item">
+                                <i class="fas fa-map-marker-alt"></i> <?php echo $p['loc']; ?>
+                            </div>
+                            <div class="profile-detail-item">
+                                <i class="fas fa-leaf"></i> Gotra: <?php echo $p['gotra']; ?>
+                            </div>
+                            <div class="profile-detail-item">
+                                <i class="fas fa-graduation-cap"></i> <?php echo $p['edu']; ?>
+                            </div>
+                            <div class="profile-detail-item">
+                                <i class="fas fa-briefcase"></i> <?php echo $p['job']; ?>
+                            </div>
+                        </div>
+
                         <div class="profile-actions">
-                            <button class="btn-view" onclick="location.href='register.php'">View</button>
-                            <button class="btn-interest" onclick="location.href='register.php'">Interest</button>
+                            <a href="view-profile.php?id=<?php echo $p['id']; ?>" class="btn-action btn-view-outline"
+                                style="text-decoration:none; display:flex; align-items:center; justify-content:center;">View</a>
+                            <button class="btn-action btn-interest-solid"
+                                onclick="openActionModal('interest', '<?php echo rawurlencode(json_encode(['id' => $p['id'], 'name' => $p['name']])); ?>')">Interest</button>
                         </div>
                     </div>
                 </div>
@@ -218,15 +368,59 @@ include 'header.php';
     </div>
 </section>
 
-<!-- ═══ VIDEO STORY ═══ -->
-<section class="video-story" id="blog">
-    <div class="video-banner fade-up">
-        <div class="video-overlay"></div>
-        <div class="video-content">
-            <div class="small-label">WE'RE A LEADING INDUSTRY COMPANY</div>
-            <h3>We Are Always at the<br>Forefront of The Marriage Ceremony!</h3>
-            <button class="play-btn" aria-label="Play video"><i class="fa-solid fa-play"></i></button>
-            <a href="#" class="watch-link">Watch Our Story <i class="fa-solid fa-arrow-right"></i></a>
+<!-- ═══ LATEST BLOGS ═══ -->
+<section class="latest-blogs" id="blog" style="padding: 100px 0; background: #fdf2f5;">
+    <div class="container">
+        <div class="section-header fade-up" style="text-align: center; margin-bottom: 50px;">
+            <div class="section-label">LATEST FROM BLOG ———</div>
+            <h2>Relationship & Marriage Insights</h2>
+        </div>
+        
+        <div class="blog-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+            <?php if (empty($latestBlogs)): ?>
+                <div class="blog-topic-card fade-up">
+                    <div style="padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                        <h3><i class="fa-solid fa-lightbulb" aria-hidden="true" style="color: var(--match-pink);"></i> How to choose the right life partner</h3>
+                        <p>Understand compatibility, values, and long-term goals.</p>
+                        <a href="blog.php" style="color: var(--match-pink); text-decoration: none; font-weight: 600; margin-top: 15px; display: inline-block;">Read More →</a>
+                    </div>
+                </div>
+                <div class="blog-topic-card fade-up">
+                    <div style="padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                        <h3><i class="fa-solid fa-comments" aria-hidden="true" style="color: var(--match-pink);"></i> First conversation tips</h3>
+                        <p>Make a great first impression with confidence.</p>
+                        <a href="blog.php" style="color: var(--match-pink); text-decoration: none; font-weight: 600; margin-top: 15px; display: inline-block;">Read More →</a>
+                    </div>
+                </div>
+                <div class="blog-topic-card fade-up">
+                    <div style="padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                        <h3><i class="fa-solid fa-heart" aria-hidden="true" style="color: var(--match-pink);"></i> Arranged vs love marriage</h3>
+                        <p>Finding the balance between tradition and choices.</p>
+                        <a href="blog.php" style="color: var(--match-pink); text-decoration: none; font-weight: 600; margin-top: 15px; display: inline-block;">Read More →</a>
+                    </div>
+                </div>
+            <?php else: ?>
+                <?php foreach ($latestBlogs as $b): 
+                    $blogImg = !empty($b['image']) ? $b['image'] : 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000';
+                    $excerpt = substr(strip_tags($b['content']), 0, 100) . '...';
+                ?>
+                <div class="blog-card fade-up" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                    <div class="blog-img-wrap" style="height: 200px; overflow: hidden;">
+                        <img src="<?php echo htmlspecialchars($blogImg); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div style="padding: 25px;">
+                        <div style="font-size: 0.8rem; color: #888; margin-bottom: 10px;"><?php echo date('M j, Y', strtotime($b['created_at'])); ?></div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 15px; line-height: 1.4;"><?php echo htmlspecialchars($b['title']); ?></h3>
+                        <p style="color: #666; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;"><?php echo htmlspecialchars($excerpt); ?></p>
+                        <a href="blog.php?slug=<?php echo $b['slug']; ?>" style="color: var(--match-pink); text-decoration: none; font-weight: 600; display: inline-block;">Read More →</a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="blog.php" class="btn-outline">View All Articles</a>
         </div>
     </div>
 </section>
@@ -328,24 +522,43 @@ include 'header.php';
     document.querySelectorAll('.about-stats').forEach(el => statsObserver.observe(el));
 
     /* ── Heart button click ── */
-    document.querySelectorAll('.heart-btn').forEach(btn => {
+    document.querySelectorAll('.profile-favorite').forEach(btn => {
         btn.addEventListener('click', function () {
-            this.textContent = this.textContent === '♡' ? '♥' : '♡';
-            this.style.color = this.textContent === '♥' ? '#F54E7E' : '';
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                icon.style.color = '#F54E7E';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                icon.style.color = '';
+            }
         });
     });
 
     /* ── Testimonial carousel ── */
-    const testimonials = [
-        { name: 'Riya & Aditya', loc: 'Mumbai to Pune 📍', quote: '"Shadikibaat made our journey so easy! We found each other through their AI recommendations and it was love at first chat. The verification process made us feel safe and confident. Forever grateful."', badge: 'Married Nov 2024', img: 'assets/testimonial_couple.png' },
-        { name: 'Sneha & Vikram', loc: 'Delhi to Jaipur 📍', quote: '"We never thought online matchmaking could be this wonderful. The verified profiles gave us confidence, and the AI suggestions were incredibly accurate. Thank you ShadikiBaat!"', badge: 'Married Aug 2024', img: 'assets/hero_couple.png' },
-        { name: 'Meera & Arjun', loc: 'Bangalore to Chennai 📍', quote: '"From the first match to our wedding day, ShadikiBaat was with us every step. The platform is intuitive, safe, and truly cares about bringing people together. Highly recommend!"', badge: 'Married Mar 2025', img: 'assets/profile_1.png' }
-    ];
+    const testimonials = <?php echo json_encode($dynamicTestimonials); ?>;
     let tIdx = 0;
+    
+    // Auto-populate the first testimonial on load if available
+    if (testimonials.length > 0) {
+        const card = document.getElementById('testimonialCard');
+        if (card) {
+            card.querySelector('.testimonial-photo').src = testimonials[0].img;
+            card.querySelector('.testimonial-name').textContent = testimonials[0].name;
+            card.querySelector('.testimonial-loc').textContent = testimonials[0].loc;
+            card.querySelector('.testimonial-quote').textContent = testimonials[0].quote;
+            card.querySelector('.testimonial-badge').textContent = testimonials[0].badge;
+        }
+    }
+
     function changeTestimonial(dir) {
+        if (testimonials.length <= 1) return; // No need to slide if only 1
         tIdx = (tIdx + dir + testimonials.length) % testimonials.length;
         const t = testimonials[tIdx];
         const card = document.getElementById('testimonialCard');
+        if (!card) return;
         card.style.opacity = '0';
         card.style.transform = 'translateX(' + (dir > 0 ? '30px' : '-30px') + ')';
         setTimeout(() => {

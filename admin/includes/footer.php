@@ -41,5 +41,6 @@
     });
   })();
   </script>
+  <script src="assets/js/admin-script.js" defer></script>
 </body>
 </html>

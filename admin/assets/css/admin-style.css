@@ -1,0 +1,358 @@
+/* Shadikibaat admin — static UI layer (imports core admin.css) */
+@import url("../../css/admin.css");
+
+/* Dashboard stat grid: flexible columns when more than four cards */
+.admin-dashboard .admin-stats-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* --------------------------------------------------------------------------
+   Static-only UI helpers (toggles, toolbars, login shell)
+   -------------------------------------------------------------------------- */
+
+.admin-static-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-static-toolbar .admin-input-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.admin-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(233, 78, 119, 0.35);
+  background: var(--admin-white);
+  color: var(--admin-rose-deep);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.admin-btn-ghost:hover {
+  background: var(--admin-rose-soft);
+}
+
+.admin-sort-hint {
+  font-size: 12px;
+  color: var(--admin-muted);
+}
+
+/* Toggle row (static — toggled via JS class only) */
+.admin-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--admin-white);
+  border: 1px solid var(--admin-card-border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-toggle-row span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.admin-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.admin-switch-slider {
+  position: absolute;
+  inset: 0;
+  background: #d1d5db;
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.admin-switch-slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.admin-switch input:checked + .admin-switch-slider {
+  background: linear-gradient(90deg, #e94e77, #f48fb1);
+}
+
+.admin-switch input:checked + .admin-switch-slider::before {
+  transform: translateX(22px);
+}
+
+.admin-switch input:focus-visible + .admin-switch-slider {
+  outline: 2px solid var(--admin-rose);
+  outline-offset: 2px;
+}
+
+/* Payment method cards */
+.admin-pay-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.admin-pay-card {
+  padding: 18px;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-card-border);
+  background: var(--admin-white);
+  box-shadow: var(--admin-shadow);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-pay-card h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Member thumb in tables */
+.admin-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: linear-gradient(135deg, #fce4ec, #f3f4f6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.admin-actions-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-actions-inline .admin-btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 8px;
+}
+
+/* Plan cards */
+.admin-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.admin-plan-card-ui {
+  padding: 22px;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-card-border);
+  background: var(--admin-white);
+  box-shadow: var(--admin-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-plan-card-ui h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.admin-plan-price {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--admin-rose);
+}
+
+.admin-plan-meta {
+  font-size: 13px;
+  color: var(--admin-muted);
+}
+
+.admin-plan-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--admin-text);
+}
+
+.admin-plan-features li {
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(233, 78, 119, 0.15);
+}
+
+.admin-plan-features li:last-child {
+  border-bottom: none;
+}
+
+/* Login shell (no sidebar) */
+.admin-login-body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Poppins", system-ui, sans-serif;
+  background: linear-gradient(145deg, #1f2937 0%, #111827 40%, #3d1528 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.admin-login-panel {
+  width: 100%;
+  max-width: 420px;
+  padding: 36px 32px 40px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-login-panel h1 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  color: var(--admin-text);
+}
+
+.admin-login-panel .lead {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--admin-muted);
+}
+
+.admin-login-panel label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-muted);
+  margin-bottom: 6px;
+}
+
+.admin-login-panel input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.admin-login-panel .admin-btn-primary {
+  width: 100%;
+  justify-content: center;
+  margin-top: 20px;
+  display: inline-flex;
+}
+
+.admin-login-logo {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.admin-nav-logout {
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-sidebar-border);
+}
+
+.admin-nav-logout .admin-nav-link {
+  color: #fca5a5;
+}
+
+.admin-nav-logout .admin-nav-link:hover {
+  color: #fecaca;
+}
+
+/* CMS link cards */
+.admin-cms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.admin-cms-tile {
+  display: block;
+  padding: 22px;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-card-border);
+  background: var(--admin-white);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--admin-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.admin-cms-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(233, 78, 119, 0.15);
+}
+
+.admin-cms-tile i {
+  font-size: 1.5rem;
+  color: var(--admin-rose);
+  margin-bottom: 10px;
+}
+
+.admin-cms-tile h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.admin-cms-tile p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--admin-muted);
+}
+
+.admin-switch--table {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-field-key {
+  font-size: 11px;
+  color: var(--admin-muted);
+  font-family: ui-monospace, monospace;
+}
+
+.admin-field-matrix-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--admin-muted);
+  line-height: 1.55;
+}
+
+.admin-field-matrix-note code {
+  font-size: 12px;
+}
+

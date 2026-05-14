@@ -325,7 +325,7 @@
   margin-bottom: 28px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .admin-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -765,6 +765,15 @@
 
   .admin-topbar {
     padding: 10px 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 10px;
+  }
+
+  .admin-topbar-title {
+    flex: 1;
+    min-width: 0;
   }
 
   .admin-topbar-title h1 {
@@ -772,13 +781,23 @@
   }
 
   .admin-topbar-actions {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 10px;
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    justify-content: stretch;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
   }
 
   .admin-topbar-actions > * {
     min-width: 0;
+    width: auto;
+    max-width: 100%;
+    justify-self: stretch;
   }
 
   .admin-stats-grid {
@@ -898,17 +917,21 @@
   }
 
   .admin-badge-soft {
-    padding: 6px 12px;
+    padding: 8px 10px;
     font-size: 11px;
-    width: 100%;
     justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .admin-link-site {
-    padding: 8px 14px;
-    font-size: 12px;
-    width: 100%;
+    padding: 8px 10px;
+    font-size: 11px;
     justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -922,11 +945,8 @@
   }
 
   .admin-topbar-actions {
-    gap: 8px;
-  }
-
-  .admin-topbar-actions > * {
-    width: 100%;
+    gap: 6px;
+    grid-template-columns: 1fr 1fr;
   }
 
   .admin-topbar-title h1 {

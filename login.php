@@ -6,7 +6,7 @@ include 'header.php';
 ?>
 
 <main class="reg-bg">
-    <div class="container reg-shell" style="max-width: 440px;">
+    <div class="container reg-shell reg-shell--narrow">
         <header class="reg-intro">
             <p class="reg-badge"><span aria-hidden="true">🔐</span> Welcome back</p>
             <h1>Login</h1>
@@ -43,6 +43,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     btn.disabled = true;
     const body = new URLSearchParams();
     body.set('email', email);
+    body.set('password', document.getElementById('login_password').value);
     fetch('login-session.php', {
         method: 'POST',
         credentials: 'same-origin',

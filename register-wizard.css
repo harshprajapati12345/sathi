@@ -14,6 +14,7 @@
   --shadow-hover: 0 16px 48px rgba(244, 92, 147, 0.18);
   background: var(--bg-soft);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .reg-page-register {
@@ -84,6 +85,12 @@
   grid-template-columns: 1fr;
   justify-items: center;
   align-items: start;
+  padding: 0 16px;
+}
+
+.reg-shell.reg-shell--narrow {
+  max-width: min(440px, 100%);
+  width: 100%;
 }
 
 .reg-form-column {
@@ -100,21 +107,6 @@
 
   .reg-form-column {
     max-width: none;
-  }
-
-  .reg-stepper-wrap {
-    padding-bottom: 6px;
-  }
-
-  .reg-stepper {
-    justify-content: flex-start;
-    gap: 6px;
-    padding: 0 8px;
-  }
-
-  .reg-step-item {
-    min-width: 92px;
-    flex: 1;
   }
 
   .reg-grid,
@@ -237,6 +229,12 @@
   color: #888;
   white-space: nowrap;
   transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.reg-step-item:hover {
+  border-color: var(--brand);
+  background: var(--bg-soft);
 }
 
 .reg-step-item .num {
@@ -255,6 +253,7 @@
   border-color: var(--brand);
   color: var(--text);
   box-shadow: 0 4px 16px rgba(244, 92, 147, 0.2);
+  cursor: default;
 }
 
 .reg-step-item.active .num {
@@ -345,6 +344,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   font-size: 15px;
+  line-height: 1.45;
   font-family: inherit;
   color: var(--text);
   background: var(--card);
@@ -400,18 +400,23 @@
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 36px;
+  min-height: 48px;
 }
 
+/* Extra vertical room so floating label + native select text never overlap */
 .reg-float-select select {
-  padding-top: 22px;
-  padding-bottom: 10px;
+  padding-top: 26px;
+  padding-bottom: 12px;
+  min-height: 52px;
+  line-height: 1.5;
 }
 
 .reg-float-select label {
-  top: 8px;
+  top: 9px;
   transform: translateY(0);
   font-size: 11px;
   font-weight: 600;
+  line-height: 1.2;
   color: var(--brand);
   pointer-events: none;
 }
@@ -435,12 +440,26 @@
   padding-top: 22px;
 }
 
-.reg-float input[type='number'] + label {
-  top: 8px;
-  transform: translateY(0);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--brand);
+.reg-float.invalid input[type='number'] + label {
+  color: var(--error);
+}
+
+.reg-custom-input {
+  display: none;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--brand);
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--text);
+  animation: regSlideDown 0.3s ease;
+}
+
+@keyframes regSlideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .reg-float.invalid input,
@@ -797,6 +816,18 @@
 }
 
 @media (max-width: 480px) {
+  .reg-float input,
+  .reg-float select,
+  .reg-float textarea {
+    font-size: 16px;
+  }
+
+  .reg-float.reg-float-select select {
+    padding: 28px 14px 12px;
+    min-height: 54px;
+    line-height: 1.5;
+  }
+
   .reg-bg {
     padding-top: 60px;
     padding-bottom: 28px;
@@ -815,12 +846,14 @@
   }
 
   .reg-stepper {
-    gap: 5px;
+    gap: 8px;
     padding: 0 6px;
   }
 
   .reg-step-item {
-    min-width: 82px;
+    flex: 1 1 calc(50% - 10px);
+    max-width: calc(50% - 6px);
+    min-width: 0;
   }
 
   .reg-phone-row {
@@ -978,6 +1011,194 @@
   border-radius: 10px;
   border: 1px dashed var(--border);
 }
+
+/* ── Payment step (after upload) ── */
+.reg-payment-intro {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.65;
+  margin: 0 0 20px;
+}
+
+.reg-payment-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 20px 18px;
+  background: linear-gradient(180deg, #fff 0%, var(--bg-soft) 100%);
+  margin-bottom: 22px;
+}
+
+.reg-payment-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.reg-payment-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 6px;
+}
+
+.reg-payment-plan-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.reg-payment-plan-meta {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #777;
+}
+
+.reg-payment-amount {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--brand);
+  line-height: 1;
+}
+
+.reg-payment-currency {
+  font-size: 0.65em;
+  font-weight: 700;
+  vertical-align: super;
+}
+
+.reg-payment-features {
+  list-style: none;
+  margin: 0;
+  padding: 14px 0 0;
+  border-top: 1px dashed var(--border);
+  font-size: 13px;
+  color: #444;
+  line-height: 1.7;
+}
+
+.reg-payment-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.reg-payment-features li:last-child {
+  margin-bottom: 0;
+}
+
+.reg-payment-features i {
+  color: var(--success);
+  margin-top: 3px;
+}
+
+.reg-payment-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.reg-payment-legend {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.reg-pay-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.reg-pay-option:hover {
+  border-color: rgba(244, 92, 147, 0.45);
+}
+
+.reg-pay-option input {
+  margin-top: 4px;
+  accent-color: var(--brand);
+  flex-shrink: 0;
+}
+
+.reg-pay-option:has(input:checked) {
+  border-color: var(--brand);
+  box-shadow: 0 4px 16px rgba(244, 92, 147, 0.15);
+}
+
+.reg-pay-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reg-pay-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reg-pay-sub {
+  font-size: 12px;
+  color: #888;
+}
+
+.reg-payment-agree {
+  margin-top: 18px;
+  align-items: flex-start;
+}
+
+.reg-payment-footnote {
+  font-size: 12px;
+  color: #888;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: var(--bg-soft);
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  line-height: 1.55;
+}
+
+.reg-field-wrap--hidden {
+  display: none !important;
+}
+
+.reg-field-wrap.reg-grid-full {
+  grid-column: 1 / -1;
+}
+
+
+.reg-payment-upload-wrap {
+  margin-top: 20px;
+}
+
+.reg-payment-upload-hint {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.55;
+  margin: 0 0 14px;
+  padding-left: 2px;
+}
+
 @media (max-width: 900px) {
   .reg-bg {
     padding-top: 72px;
@@ -992,14 +1213,26 @@
     padding: 24px 18px 24px;
   }
 
+  .reg-stepper-wrap {
+    overflow-x: visible;
+    margin-bottom: 24px;
+    padding-bottom: 6px;
+  }
+
   .reg-stepper {
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-width: 0;
+    gap: 10px;
     padding: 0 8px;
   }
 
   .reg-step-item {
-    min-width: 108px;
-    flex: 1;
+    flex: 1 1 calc(33.333% - 10px);
+    min-width: 0;
+    white-space: normal;
+    justify-content: center;
+    text-align: center;
   }
 
   .reg-section-title {
@@ -1029,6 +1262,12 @@
   .reg-float textarea {
     padding: 16px 14px 10px;
     font-size: 14px;
+  }
+
+  .reg-float.reg-float-select select {
+    padding: 26px 14px 12px;
+    min-height: 52px;
+    line-height: 1.5;
   }
 
   .reg-float textarea {

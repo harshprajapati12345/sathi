@@ -11,7 +11,10 @@ $tbTitle = isset($pageTitle) ? (string) $pageTitle : 'Admin';
     <p class="admin-breadcrumb"><span>Matrimonial Admin</span><?php echo isset($breadcrumbExtra) ? ' · ' . htmlspecialchars((string) $breadcrumbExtra, ENT_QUOTES, 'UTF-8') : ''; ?></p>
   </div>
   <div class="admin-topbar-actions">
-    <span class="admin-badge-soft"><i class="fas fa-layer-group" aria-hidden="true"></i> Static preview</span>
+    <?php if (!empty($_SESSION['sathi_admin_name'])): ?>
+    <span class="admin-badge-soft"><i class="fas fa-user" aria-hidden="true"></i> <?php echo htmlspecialchars((string) $_SESSION['sathi_admin_name'], ENT_QUOTES, 'UTF-8'); ?></span>
+    <?php endif; ?>
+    <a href="logout.php" class="admin-link-site" title="Sign out"><i class="fas fa-right-from-bracket"></i> Logout</a>
     <a href="../index.php" class="admin-link-site" title="View website"><i class="fas fa-arrow-up-right-from-square"></i> View site</a>
   </div>
 </header>

@@ -1,6 +1,11 @@
 <?php
+declare(strict_types=1);
+
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/master-storage.php';
+require_once __DIR__ . '/includes/auth.php';
+
+shadikibaat_admin_require_auth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -41,11 +46,25 @@ if (($action === 'edit' || $action === 'delete') && $id === '') {
     exit;
 }
 
+$item = ['id' => $id, 'name' => $name, 'status' => $status];
+$religionId = isset($_POST['religion_id']) ? trim((string) $_POST['religion_id']) : '';
+$countryId = isset($_POST['country_id']) ? trim((string) $_POST['country_id']) : '';
+$stateId = isset($_POST['state_id']) ? trim((string) $_POST['state_id']) : '';
+if ($religionId !== '') {
+    $item['religion_id'] = $religionId;
+}
+if ($countryId !== '') {
+    $item['country_id'] = $countryId;
+}
+if ($stateId !== '') {
+    $item['state_id'] = $stateId;
+}
+
 $result = false;
 if ($action === 'delete') {
     $result = sathi_master_storage_delete($slug, $id);
 } else {
-    $result = sathi_master_storage_upsert($slug, ['id' => $id, 'name' => $name, 'status' => $status]);
+    $result = sathi_master_storage_upsert($slug, $item);
 }
 
 header('Content-Type: application/json; charset=UTF-8');

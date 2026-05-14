@@ -74,6 +74,13 @@ $cur = $adminCurrent ?? '';
         </details>
       </li>
       <?php endforeach; ?>
+
+      <li class="admin-nav-logout">
+        <a href="logout.php" class="admin-nav-link">
+          <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
+          <span>Logout</span>
+        </a>
+      </li>
     </ul>
   </nav>
 </aside>

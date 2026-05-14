@@ -1,46 +1,41 @@
 <?php
 /**
- * Admin sidebar navigation — slug must match keys in page.php $ADMIN_PAGES (except dashboard).
+ * Admin sidebar navigation — slug (col 2) must match $adminCurrent on each page.
+ * Fourth column: direct href to static UI page.
  */
 return [
-    ['link', 'dashboard', 'Dashboard', 'fa-gauge-high', 'index.php'],
-    ['section', 'Members Management'],
-    ['link', 'members-all', 'All Members', 'fa-users', null],
-    ['link', 'members-approval', 'Member Approvals', 'fa-user-check', null],
-    ['link', 'members-approved-paid', 'Approved → Paid Members', 'fa-circle-check', null],
-    ['link', 'members-renew', 'Renew Membership Plan', 'fa-rotate', null],
-    ['link', 'members-featured', 'Manage Featured Members', 'fa-star', null],
-    ['link', 'members-deactivation', 'Profile Deactivation Requests', 'fa-user-slash', null],
+    ['link', 'dashboard', 'Dashboard', 'fa-gauge-high', 'dashboard.php'],
+
+    ['section', 'Members'],
+    ['link', 'members-all', 'All Members', 'fa-users', 'members.php'],
+    ['link', 'members-approval', 'Member Approvals', 'fa-user-clock', 'member-approvals.php'],
+    ['link', 'members-approved', 'Approved Members', 'fa-circle-check', 'approved-members.php'],
+    ['link', 'members-rejected', 'Rejected Members', 'fa-circle-xmark', 'rejected-members.php'],
+    ['link', 'members-paid', 'Paid Members', 'fa-indian-rupee-sign', 'paid-members.php'],
+    ['link', 'members-featured', 'Featured Members', 'fa-star', 'featured-members.php'],
+    ['link', 'members-deactivation', 'Profile Deactivation Requests', 'fa-user-slash', 'profile-deactivation.php'],
+
     ['section', 'Membership Plans'],
-    ['link', 'plans-add', 'Add Membership Plan', 'fa-plus-circle', null],
-    ['link', 'plans-all', 'All Membership Plans', 'fa-list-ul', null],
-    ['section', 'Profile Master Data'],
-    ['link', 'master-religion', 'Religion', 'fa-place-of-worship', null],
-    ['link', 'master-caste', 'Caste', 'fa-people-group', null],
-    ['link', 'master-subcaste', 'Sub Caste', 'fa-users-line', null],
-    ['link', 'master-gotra', 'Gotra', 'fa-book-open', null],
-    ['link', 'master-country', 'Country', 'fa-globe', null],
-    ['link', 'master-state', 'State', 'fa-map', null],
-    ['link', 'master-city', 'City', 'fa-city', null],
-    ['link', 'master-occupation', 'Occupation', 'fa-briefcase', null],
-    ['link', 'master-education', 'Education', 'fa-graduation-cap', null],
-    ['link', 'master-mother-tongue', 'Mother Tongue', 'fa-language', null],
-    ['link', 'master-star', 'Star', 'fa-star-of-david', null],
-    ['link', 'master-rasi', 'Rasi (Moonsign)', 'fa-moon', null],
-    ['link', 'master-income', 'Annual Income', 'fa-indian-rupee-sign', null],
-    ['link', 'master-dosh', 'Dosh', 'fa-yin-yang', null],
-    ['section', 'Match Making'],
-    ['link', 'match-suggestions', 'Match Suggestions', 'fa-heart', null],
-    ['link', 'match-compatibility', 'Compatibility Settings', 'fa-sliders', null],
+    ['link', 'plans-add', 'Add Membership Plan', 'fa-plus-circle', 'add-membership-plan.php'],
+    ['link', 'plans-all', 'All Membership Plans', 'fa-list-ul', 'membership-plans.php'],
+
+    ['section', 'Registration Form Controls'],
+    ['link', 'form-field-settings', 'Field Visibility', 'fa-sliders', 'form-field-settings.php'],
+
     ['section', 'Payments'],
-    ['link', 'payments-history', 'Payment History', 'fa-receipt', null],
-    ['link', 'payments-manual', 'Manual Payments', 'fa-hand-holding-dollar', null],
-    ['link', 'payments-methods', 'Payment Methods', 'fa-credit-card', null],
-    ['section', 'Approvals'],
-    ['link', 'approval-horoscope', 'Horoscope Approval', 'fa-file-pdf', null],
-    ['link', 'approval-document', 'Document Approval', 'fa-file-lines', null],
-    ['link', 'approval-photo', 'Profile Picture Approval', 'fa-camera', null],
-    ['link', 'approval-gallery', 'Gallery Photo Approval (2–8)', 'fa-images', null],
-    ['link', 'approval-about', 'About Me Approval', 'fa-user-pen', null],
-    ['link', 'approval-partner', 'Partner Expectation Approval', 'fa-hand-holding-heart', null],
+    ['link', 'payments-history', 'Payment History', 'fa-receipt', 'payments.php'],
+    ['link', 'payments-manual', 'Manual Payments', 'fa-hand-holding-dollar', 'manual-payments.php'],
+    ['link', 'payments-methods', 'Payment Methods', 'fa-credit-card', 'payment-methods.php'],
+
+    ['section', 'CMS'],
+    ['link', 'cms-home', 'CMS Overview', 'fa-layer-group', 'cms.php'],
+    ['link', 'cms-blogs', 'Blogs', 'fa-newspaper', 'blogs.php'],
+    ['link', 'cms-stories', 'Success Stories', 'fa-heart', 'success-stories.php'],
+    ['link', 'cms-banner', 'Homepage Banner', 'fa-image', 'homepage-banner.php'],
+
+    ['section', 'Reports'],
+    ['link', 'reports', 'Reports', 'fa-chart-column', 'reports.php'],
+
+    ['section', 'Settings'],
+    ['link', 'settings', 'Settings', 'fa-gear', 'settings.php'],
 ];
