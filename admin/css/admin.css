@@ -30,6 +30,7 @@
   color: var(--admin-text);
   background: linear-gradient(145deg, #faf5f7 0%, #f3f4f6 45%, #fff5f8 100%);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .admin-layout {
@@ -133,7 +134,7 @@
   flex-shrink: 0;
 }
 
-.admin-nav-dropdown[open] > .admin-nav-dropdown-summary {
+.admin-nav-dropdown[open]>.admin-nav-dropdown-summary {
   background: rgba(55, 65, 81, 0.65);
   color: #fff;
 }
@@ -695,7 +696,7 @@
 
 .admin-feature-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
   gap: 14px;
   margin-top: 20px;
 }
@@ -782,22 +783,16 @@
 
   .admin-topbar-actions {
     flex: 1 1 100%;
-    flex-wrap: nowrap;
-    justify-content: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 8px;
     width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
   }
 
-  .admin-topbar-actions > * {
-    min-width: 0;
-    width: auto;
-    max-width: 100%;
-    justify-self: stretch;
+  .admin-topbar-actions>* {
+    flex: 1 1 auto;
+    text-align: center;
   }
 
   .admin-stats-grid {
@@ -834,7 +829,8 @@
   .admin-btn {
     padding: 12px 20px;
     font-size: 14px;
-    min-height: 44px; /* Touch-friendly */
+    min-height: 44px;
+    /* Touch-friendly */
   }
 
   .admin-table-wrap {
@@ -860,8 +856,10 @@
   .admin-form-field textarea,
   .admin-form-field select {
     padding: 14px 16px;
-    font-size: 16px; /* Prevents zoom on iOS */
-    min-height: 44px; /* Touch-friendly */
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+    min-height: 44px;
+    /* Touch-friendly */
   }
 
   .admin-form-field textarea {
@@ -946,7 +944,6 @@
 
   .admin-topbar-actions {
     gap: 6px;
-    grid-template-columns: 1fr 1fr;
   }
 
   .admin-topbar-title h1 {
@@ -1048,4 +1045,24 @@
   .admin-chart-bar {
     transition: none;
   }
+}
+
+.admin-badge-success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.admin-badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.admin-badge-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-badge-info {
+  background: #e0f2fe;
+  color: #075985;
 }

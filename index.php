@@ -187,63 +187,185 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
     </div>
 </section>
 
+<!-- ═══ STYLE FOR MATCH CARDS ═══ -->
+<style>
+    .featured-matches-section {
+        padding: 100px 0;
+        background: linear-gradient(155deg, #fdf2f7 0%, #fce4ee 40%, #f7eaff 100%);
+    }
+    
+    .matches-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 28px;
+    }
+
+    .pm-card {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(244, 92, 147, 0.10);
+        border: 1px solid rgba(244, 92, 147, 0.15);
+        overflow: hidden;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .pm-card:hover {
+        transform: translateY(-8px) scale(1.012);
+        box-shadow: 0 24px 56px rgba(244, 92, 147, 0.22);
+    }
+
+    .pm-card__img-wrap {
+        position: relative;
+        aspect-ratio: 4 / 4.5;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .pm-card__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.55s ease;
+    }
+
+    .pm-card:hover .pm-card__img {
+        transform: scale(1.07);
+    }
+
+    .pm-card__img-wrap::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(20, 10, 28, 0.72) 0%, transparent 55%);
+        pointer-events: none;
+    }
+
+    .pm-card__body {
+        padding: 16px 18px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+    }
+
+    .pm-card__body-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pm-card__actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .pm-btn {
+        padding: 10px 0;
+        border-radius: 12px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.22s;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .pm-btn--outline {
+        background: transparent;
+        border: 1.5px solid #f45c93;
+        color: #f45c93;
+    }
+
+    .pm-btn--outline:hover {
+        background: #f45c93;
+        color: #fff;
+        transform: scale(1.03);
+        box-shadow: 0 4px 14px rgba(244, 92, 147, 0.28);
+    }
+
+    .pm-btn--solid {
+        background: linear-gradient(135deg, #f45c93, #ff7ab3);
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(244, 92, 147, 0.30);
+    }
+
+    .pm-btn--solid:hover {
+        background: linear-gradient(135deg, #e64680, #f45c93);
+        box-shadow: 0 6px 22px rgba(244, 92, 147, 0.45);
+        transform: scale(1.03);
+    }
+
+    @media (max-width: 640px) {
+        .matches-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+    }
+
+    @media (min-width: 641px) and (max-width: 900px) {
+        .matches-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
 <!-- ═══ FEATURED MATCHES ═══ -->
-<section class="featured" id="membership">
+<section class="featured-matches-section" id="featured-matches">
     <div class="container">
-        <div class="featured-header fade-up">
-            <div>
-                <div class="section-label">FEATURED MATCHES ——</div>
-                <h2>Discover verified profiles that match your preferences</h2>
-            </div>
-            <button class="btn-outline" onclick="location.href='matches.php'">View All Matches</button>
+        <div class="section-header fade-up" style="text-align: center; margin-bottom: 50px;">
+            <div class="section-label">VERIFIED PROFILES ———</div>
+            <h2>Featured Matches</h2>
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 15px auto 0; font-size: 1.05rem;">
+                Explore our handpicked profiles, fully verified and ready to connect.
+            </p>
         </div>
 
-        <div class="profiles-grid">
+        <div class="matches-grid">
             <?php
-            // Dynamic Profile Fetching (Homepage)
+            // Fetch verified members (limit to 8)
+            require_once __DIR__ . '/admin/includes/user-storage.php';
             require_once __DIR__ . '/includes/registration-config.php';
-            // Ensure DB and storage are available
-            if (!function_exists('sathi_users_list_by_status')) {
-                require_once __DIR__ . '/admin/includes/user-storage.php';
-            }
-            if (!function_exists('sathi_db')) {
-                require_once __DIR__ . '/config/database.php';
-            }
+
             $masters = sathi_registration_masters();
 
-            // Helper to get label from value
             $getLabel = function ($listName, $value) use ($masters) {
-                if (empty($value))
-                    return '—';
+                if (empty($value)) return '—';
                 $list = $masters[$listName] ?? [];
-                // Handle nested geo lists
                 if ($listName === 'cities') {
                     foreach ($masters['geo']['cities'] as $stateCode => $cityList) {
                         foreach ($cityList as $item) {
-                            if ($item['value'] == $value)
-                                return $item['label'];
+                            if ($item['value'] == $value) return $item['label'];
                         }
                     }
                 } elseif ($listName === 'states') {
                     foreach ($masters['geo']['states'] as $countryCode => $stateList) {
                         foreach ($stateList as $item) {
-                            if ($item['value'] == $value)
-                                return $item['label'];
+                            if ($item['value'] == $value) return $item['label'];
                         }
                     }
                 } else {
                     foreach ($list as $item) {
-                        if ($item['value'] == $value)
-                            return $item['label'];
+                        if ($item['value'] == $value) return $item['label'];
                     }
                 }
                 return ucfirst(str_replace('_', ' ', (string) $value));
             };
 
-            // Age Calculator
             $calculateAge = function ($dob) {
-                if (empty($dob))
-                    return '—';
+                if (empty($dob)) return '—';
                 try {
                     $birthDate = new DateTime($dob);
                     $today = new DateTime();
@@ -253,22 +375,14 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
                 }
             };
 
-            // Fetch Approved Users
+            // Fetch Approved Users (limit to 8)
             $rawRows = sathi_users_list_by_status('approved', 8);
             $profiles = [];
 
             foreach ($rawRows as $r) {
                 $fullName = trim(($r['first_name'] ?? '') . ' ' . ($r['last_name'] ?? ''));
-                if (empty($fullName))
-                    $fullName = 'Member ' . ($r['id'] ?? '');
+                if (empty($fullName)) $fullName = 'Member ' . ($r['id'] ?? '');
 
-                // Decode extra details from about_me
-                $extra = [];
-                if (!empty($r['about_me'])) {
-                    $extra = json_decode($r['about_me'], true) ?: [];
-                }
-
-                // Format data for the card and modal
                 $profiles[] = [
                     'id' => $r['id'],
                     'profile_id' => $r['profile_id'] ?? 'N/A',
@@ -278,9 +392,7 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
                     'whatsapp' => $r['whatsapp'] ?? 'N/A',
                     'joined' => !empty($r['created_at']) ? date('M j, Y', strtotime($r['created_at'])) : 'N/A',
                     'membership' => ucfirst($r['membership_status'] ?? 'Free'),
-                    'payment_id' => $r['razorpay_payment_id'] ?? 'N/A',
                     'age_val' => $calculateAge($r['dob'] ?? ''),
-                    'age' => $calculateAge($r['dob'] ?? '') . ' · ' . ($r['religion'] ?? $getLabel('religion', $r['religion_id'] ?? '')),
                     'dob' => $r['dob'] ?? 'N/A',
                     'loc' => $getLabel('cities', $r['city_id'] ?? '') . ', ' . $getLabel('states', $r['state_id'] ?? ''),
                     'edu' => $getLabel('education', $r['education_id'] ?? ''),
@@ -294,8 +406,6 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
                         : ($r['gender'] === 'female'
                             ? 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?q=80&w=1000'
                             : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000'),
-
-                    // Extra Details directly from row
                     'digamber' => strtoupper($r['digamber_jain'] ?? 'NO'),
                     'birth_time' => $r['birth_time'] ?? 'N/A',
                     'birth_place' => $r['birth_place'] ?? 'N/A',
@@ -304,8 +414,6 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
                     'dosh' => $r['dosh'] ?? 'N/A',
                     'native_place' => ($r['native_city'] ?? '') . ', ' . ($r['native_state'] ?? '') . ', ' . ($r['native_country'] ?? ''),
                     'gotra' => $r['gotra'] ?? $getLabel('gotra', $r['caste_id'] ?? ''),
-
-                    // Family
                     'father_name' => $r['father_name'] ?? 'N/A',
                     'father_mobile' => $r['father_mobile'] ?? 'N/A',
                     'father_income' => $r['father_income'] ?? 'N/A',
@@ -320,50 +428,46 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
             }
 
             if (empty($profiles)): ?>
-                <div class="no-results"
-                    style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 20px;">
-                    <i class="fas fa-search" style="font-size: 48px; color: var(--match-pink); margin-bottom: 20px;"></i>
+                <div class="pm-empty" style="grid-column: 1/-1; text-align: center; padding: 60px 20px; background: #fff; border-radius: 24px; border: 1px dashed rgba(244, 92, 147, 0.15); width: 100%;">
+                    <i class="fas fa-heart-broken" style="font-size: 52px; color: var(--pink); margin-bottom: 20px; display: block;"></i>
                     <h3>No matches found yet</h3>
                     <p>We're verifying new profiles. Please check back shortly!</p>
                 </div>
             <?php endif; ?>
+
             <?php foreach ($profiles as $p): ?>
-                <div class="profile-card fade-up">
-                    <div class="profile-img-wrap">
-                        <div class="profile-favorite"><i class="far fa-heart"></i></div>
-                        <img src="<?php echo $p['img']; ?>" alt="<?php echo $p['name']; ?>" loading="lazy">
+                <div class="pm-card fade-up">
+                    <!-- Image -->
+                    <div class="pm-card__img-wrap">
+                        <img class="pm-card__img" src="<?php echo htmlspecialchars($p['img']); ?>"
+                            alt="<?php echo htmlspecialchars($p['name']); ?>" loading="lazy">
                     </div>
-                    <div class="profile-info">
-                        <div class="profile-name">
-                            <?php echo $p['name']; ?>
-                            <span class="verified-tag"><i class="fas fa-check-circle"></i> Verified</span>
-                        </div>
-                        <div class="profile-meta-main"><?php echo $p['age']; ?></div>
 
-                        <div class="profile-details-list">
-                            <div class="profile-detail-item">
-                                <i class="fas fa-map-marker-alt"></i> <?php echo $p['loc']; ?>
-                            </div>
-                            <div class="profile-detail-item">
-                                <i class="fas fa-leaf"></i> Gotra: <?php echo $p['gotra']; ?>
-                            </div>
-                            <div class="profile-detail-item">
-                                <i class="fas fa-graduation-cap"></i> <?php echo $p['edu']; ?>
-                            </div>
-                            <div class="profile-detail-item">
-                                <i class="fas fa-briefcase"></i> <?php echo $p['job']; ?>
-                            </div>
-                        </div>
+                    <!-- Body -->
+                    <div class="pm-card__body">
+                        <!-- Name only -->
+                        <div class="pm-card__body-name"><?php echo htmlspecialchars($p['name']); ?></div>
 
-                        <div class="profile-actions">
-                            <a href="view-profile.php?id=<?php echo $p['id']; ?>" class="btn-action btn-view-outline"
-                                style="text-decoration:none; display:flex; align-items:center; justify-content:center;">View</a>
-                            <button class="btn-action btn-interest-solid"
-                                onclick="openActionModal('interest', '<?php echo rawurlencode(json_encode(['id' => $p['id'], 'name' => $p['name']])); ?>')">Interest</button>
+                        <!-- Actions -->
+                        <div class="pm-card__actions">
+                            <a href="view-profile.php?id=<?php echo $p['id']; ?>" class="pm-btn pm-btn--outline">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <button class="pm-btn pm-btn--solid"
+                                onclick="openActionModal('interest', '<?php echo rawurlencode(json_encode(['id' => $p['id'], 'name' => $p['name']])); ?>')">
+                                <i class="fas fa-heart"></i> Interest
+                            </button>
                         </div>
-                    </div>
-                </div>
+                    </div><!-- /.pm-card__body -->
+                </div><!-- /.pm-card -->
             <?php endforeach; ?>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px;" class="fade-up">
+            <a href="matches.php" class="btn-outline" style="padding: 14px 40px; font-size: 1rem; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+                <span>View All Matches</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
         </div>
     </div>
 </section>

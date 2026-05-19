@@ -31,7 +31,7 @@ foreach ($ADMIN_NAV as $row) {
         $slugId = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($label)));
         $slugId = trim($slugId, '-');
         $__grp = [
-            'id'    => 'nav-grp-' . ($slugId !== '' ? $slugId : 'section'),
+            'id' => 'nav-grp-' . ($slugId !== '' ? $slugId : 'section'),
             'label' => $label,
             'links' => [],
         ];
@@ -43,7 +43,7 @@ foreach ($ADMIN_NAV as $row) {
         if ($slug !== '' && $slug !== 'dashboard') {
             $ADMIN_PAGES[$slug] = [
                 'title' => $row[2] ?? 'Admin',
-                'icon'  => $row[3] ?? 'fa-file',
+                'icon' => $row[3] ?? 'fa-file',
             ];
         }
     }

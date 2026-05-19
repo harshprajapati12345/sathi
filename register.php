@@ -3,6 +3,8 @@ require_once __DIR__ . '/session_init.php';
 require_once __DIR__ . '/includes/registration-config.php';
 require_once __DIR__ . '/includes/registration-masters-db.php';
 $masters = sathi_registration_masters_from_db();
+require_once __DIR__ . '/config/database.php';
+$payment_enabled = sathi_site_setting('payment_enabled', '0') === '1';
 
 $pageTitle = 'Register ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Shadikibaat | Marriage Bureau Onboarding';
 $bodyClass = 'reg-page reg-page-register';
@@ -34,7 +36,9 @@ include 'header.php';
                         <li class="reg-step-item" data-step="2"><span class="num">3</span><span>Career</span></li>
                         <li class="reg-step-item" data-step="3"><span class="num">4</span><span>Family</span></li>
                         <li class="reg-step-item" data-step="4"><span class="num">5</span><span>Upload</span></li>
-                        <li class="reg-step-item" data-step="5"><span class="num">6</span><span>Payment</span></li>
+                        <?php if ($payment_enabled): ?>
+                            <li class="reg-step-item" data-step="5"><span class="num">6</span><span>Payment</span></li>
+                        <?php endif; ?>
                     </ol>
                 </div>
 
@@ -540,551 +544,667 @@ include 'header.php';
                                                                                                     income
                                                                                                     (bracket)</label>
                                                                                             </div>
-                                                                                            </div>
-                                                                                            </div>
-                                                                                            </div>
-
-                                                                                            <!-- STEP 4 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Family -->
-                                                                                            <div class="reg-panel"
-                                                                                                data-panel="3">
-                                                                                                <h2
-                                                                                                    class="reg-section-title">
-                                                                                                    Family
-                                                                                                    details</h2>
-                                                                                                <div class="reg-split">
-                                                                                                    <div
-                                                                                                        class="reg-subcard">
-                                                                                                        <h3><i
-                                                                                                                class="fa-solid fa-user-tie"></i>
-                                                                                                            Father
-                                                                                                        </h3>
-                                                                                                        <div<?php echo sathi_reg_field_wrap_attrs('father_name'); ?>>
-                                                                                                            <div
-                                                                                                                class="reg-float">
-                                                                                                                <input
-                                                                                                                    type="text"
-                                                                                                                    id="father_name"
-                                                                                                                    name="father_name"
-                                                                                                                    placeholder=" "
-                                                                                                                    <?php echo sathi_reg_field_required_attr('father_name'); ?>>
-                                                                                                                <label
-                                                                                                                    for="father_name">Father's
-                                                                                                                    name
-                                                                                                                    (Optional)</label>
-                                                                                                            </div>
-                                                                                                    </div>
-                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('father_mobile'); ?>>
-                                                                                                        <div
-                                                                                                            class="reg-float">
-                                                                                                            <input
-                                                                                                                type="tel"
-                                                                                                                id="father_mobile"
-                                                                                                                name="father_mobile"
-                                                                                                                placeholder=" "
-                                                                                                                maxlength="10"
-                                                                                                                pattern="[0-9]{10}"
-                                                                                                                <?php echo sathi_reg_field_required_attr('father_mobile'); ?>>
-                                                                                                            <label
-                                                                                                                for="father_mobile">Mobile
-                                                                                                                (Optional)</label>
-                                                                                                        </div>
+                                                                                            <div<?php echo sathi_reg_field_wrap_attrs('height'); ?>>
+                                                                                                <div class="reg-float">
+                                                                                                    <input type="text"
+                                                                                                        id="height"
+                                                                                                        name="height"
+                                                                                                        placeholder=" "
+                                                                                                        <?php echo sathi_reg_field_required_attr('height'); ?>>
+                                                                                                    <label
+                                                                                                        for="height">Height
+                                                                                                        (e.g. 5ft 6in or
+                                                                                                        168 cm)</label>
                                                                                                 </div>
-                                                                                                <div<?php echo sathi_reg_field_wrap_attrs('father_income'); ?>>
+                                                                                                </div>
+                                                                                                <div<?php echo sathi_reg_field_wrap_attrs('weight'); ?>>
                                                                                                     <div
                                                                                                         class="reg-float">
                                                                                                         <input
                                                                                                             type="text"
-                                                                                                            id="father_income"
-                                                                                                            name="father_income"
+                                                                                                            id="weight"
+                                                                                                            name="weight"
                                                                                                             placeholder=" "
-                                                                                                            inputmode="numeric"
-                                                                                                            <?php echo sathi_reg_field_required_attr('father_income'); ?>>
+                                                                                                            <?php echo sathi_reg_field_required_attr('weight'); ?>>
                                                                                                         <label
-                                                                                                            for="father_income">Annual
-                                                                                                            income
-                                                                                                            (Optional)</label>
+                                                                                                            for="weight">Weight
+                                                                                                            (e.g. 65
+                                                                                                            kg)</label>
                                                                                                     </div>
-                                                                                            </div>
-                                                                                            <div<?php echo sathi_reg_field_wrap_attrs('father_occ'); ?>>
-                                                                                                <div class="reg-float">
-                                                                                                    <input type="text"
-                                                                                                        id="father_occ"
-                                                                                                        name="father_occ"
-                                                                                                        placeholder=" "
-                                                                                                        <?php echo sathi_reg_field_required_attr('father_occ'); ?>>
-                                                                                                    <label
-                                                                                                        for="father_occ">Occupation</label>
-                                                                                                </div>
-                                                                                                </div>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    class="reg-subcard">
-                                                                                                    <h3><i
-                                                                                                            class="fa-solid fa-user"></i>
-                                                                                                        Mother
-                                                                                                    </h3>
-                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('mother_name'); ?>>
+                                                                                                    </div>
+                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('complexion'); ?>>
                                                                                                         <div
                                                                                                             class="reg-float">
                                                                                                             <input
                                                                                                                 type="text"
-                                                                                                                id="mother_name"
-                                                                                                                name="mother_name"
+                                                                                                                id="complexion"
+                                                                                                                name="complexion"
                                                                                                                 placeholder=" "
-                                                                                                                <?php echo sathi_reg_field_required_attr('mother_name'); ?>>
+                                                                                                                <?php echo sathi_reg_field_required_attr('complexion'); ?>>
                                                                                                             <label
-                                                                                                                for="mother_name">Mother's
-                                                                                                                name
-                                                                                                                (Optional)</label>
-                                                                                                        </div>
-                                                                                                </div>
-                                                                                                <div<?php echo sathi_reg_field_wrap_attrs('mother_mobile'); ?>>
-                                                                                                    <div
-                                                                                                        class="reg-float">
-                                                                                                        <input
-                                                                                                            type="tel"
-                                                                                                            id="mother_mobile"
-                                                                                                            name="mother_mobile"
-                                                                                                            placeholder=" "
-                                                                                                            maxlength="10"
-                                                                                                            pattern="[0-9]{10}"
-                                                                                                            <?php echo sathi_reg_field_required_attr('mother_mobile'); ?>>
-                                                                                                        <label
-                                                                                                            for="mother_mobile">Mobile
-                                                                                                            (Optional)</label>
-                                                                                                    </div>
-                                                                                                    </div>
-                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('mother_income'); ?>>
-                                                                                                        <div
-                                                                                                            class="reg-float">
-                                                                                                            <input
-                                                                                                                type="text"
-                                                                                                                id="mother_income"
-                                                                                                                name="mother_income"
-                                                                                                                placeholder=" "
-                                                                                                                inputmode="numeric"
-                                                                                                                <?php echo sathi_reg_field_required_attr('mother_income'); ?>>
-                                                                                                            <label
-                                                                                                                for="mother_income">Annual
-                                                                                                                income
-                                                                                                                (Optional)</label>
+                                                                                                                for="complexion">Complexion
+                                                                                                                (e.g.
+                                                                                                                Fair,
+                                                                                                                Medium,
+                                                                                                                Wheatish)</label>
                                                                                                         </div>
                                                                                                         </div>
-                                                                                                        </div>
-                                                                                                        </div>
-                                                                                                        <div<?php echo sathi_reg_field_wrap_attrs('relative_details'); ?>
-                                                                                                            class="reg-subcard"
-                                                                                                            style="margin-top:20px;">
-                                                                                                            <h3><i
-                                                                                                                    class="fa-solid fa-users-rectangle"></i>
-                                                                                                                Relative
-                                                                                                                details
-                                                                                                            </h3>
+                                                                                                        <div<?php echo sathi_reg_field_wrap_attrs('blood_group'); ?>>
                                                                                                             <div
                                                                                                                 class="reg-float">
-                                                                                                                <textarea
-                                                                                                                    id="relative_details"
-                                                                                                                    name="relative_details"
+                                                                                                                <input
+                                                                                                                    type="text"
+                                                                                                                    id="blood_group"
+                                                                                                                    name="blood_group"
                                                                                                                     placeholder=" "
-                                                                                                                    <?php echo sathi_reg_field_required_attr('relative_details'); ?>
-                                                                                                                    rows="3"></textarea>
+                                                                                                                    <?php echo sathi_reg_field_required_attr('blood_group'); ?>>
                                                                                                                 <label
-                                                                                                                    for="relative_details">Relative
-                                                                                                                    Information
-                                                                                                                    (Optional)</label>
+                                                                                                                    for="blood_group">Blood
+                                                                                                                    Group
+                                                                                                                    (e.g.
+                                                                                                                    O+,
+                                                                                                                    A+)</label>
                                                                                                             </div>
                                                                                                             </div>
-                                                                                                            <div<?php echo sathi_reg_field_wrap_attrs('siblings'); ?>
-                                                                                                                class="reg-subcard"
-                                                                                                                style="margin-top:20px;">
-                                                                                                                <h3><i
-                                                                                                                        class="fa-solid fa-people-roof"></i>
-                                                                                                                    Siblings
-                                                                                                                </h3>
-                                                                                                                <p
-                                                                                                                    style="font-size:12px;color:#666;margin-bottom:14px;">
-                                                                                                                    Married
-                                                                                                                    +
-                                                                                                                    unmarried
-                                                                                                                    must
-                                                                                                                    equal
-                                                                                                                    total
-                                                                                                                    for
-                                                                                                                    brothers
-                                                                                                                    and
-                                                                                                                    sisters.
-                                                                                                                </p>
-                                                                                                                <p
-                                                                                                                    style="font-size:13px;font-weight:600;margin-bottom:8px;">
-                                                                                                                    Brothers
-                                                                                                                </p>
+                                                                                                            <div<?php echo sathi_reg_field_wrap_attrs('profile_created_by'); ?>>
                                                                                                                 <div
-                                                                                                                    class="reg-sibling-grid">
+                                                                                                                    class="reg-float reg-float-select">
+                                                                                                                    <select
+                                                                                                                        id="profile_created_by"
+                                                                                                                        name="profile_created_by"
+                                                                                                                        <?php echo sathi_reg_field_required_attr('profile_created_by'); ?>>
+                                                                                                                        <option
+                                                                                                                            value="self"
+                                                                                                                            selected>
+                                                                                                                            Self
+                                                                                                                        </option>
+                                                                                                                        <option
+                                                                                                                            value="parent">
+                                                                                                                            Parent
+                                                                                                                        </option>
+                                                                                                                        <option
+                                                                                                                            value="sibling">
+                                                                                                                            Sibling
+                                                                                                                        </option>
+                                                                                                                        <option
+                                                                                                                            value="relative">
+                                                                                                                            Relative
+                                                                                                                        </option>
+                                                                                                                        <option
+                                                                                                                            value="friend">
+                                                                                                                            Friend
+                                                                                                                        </option>
+                                                                                                                    </select>
+                                                                                                                    <label
+                                                                                                                        for="profile_created_by">Profile
+                                                                                                                        Created
+                                                                                                                        By</label>
+                                                                                                                </div>
+                                                                                                                </div>
+                                                                                                                <div class="reg-field-wrap"
+                                                                                                                    data-reg-field="languages_known">
                                                                                                                     <div
                                                                                                                         class="reg-float">
                                                                                                                         <input
-                                                                                                                            type="number"
-                                                                                                                            id="bro_total"
-                                                                                                                            name="bro_total"
-                                                                                                                            placeholder=" "
-                                                                                                                            min="0"
-                                                                                                                            value="0"
-                                                                                                                            <?php echo sathi_reg_field_required_attr('siblings'); ?>>
+                                                                                                                            type="text"
+                                                                                                                            id="languages_known"
+                                                                                                                            name="languages_known"
+                                                                                                                            placeholder=" ">
                                                                                                                         <label
-                                                                                                                            for="bro_total">Total</label>
-                                                                                                                    </div>
-                                                                                                                    <div
-                                                                                                                        class="reg-float">
-                                                                                                                        <input
-                                                                                                                            type="number"
-                                                                                                                            id="bro_married"
-                                                                                                                            name="bro_married"
-                                                                                                                            placeholder=" "
-                                                                                                                            min="0"
-                                                                                                                            value="0"
-                                                                                                                            <?php echo sathi_reg_field_required_attr('siblings'); ?>>
-                                                                                                                        <label
-                                                                                                                            for="bro_married">Married</label>
-                                                                                                                    </div>
-                                                                                                                    <div
-                                                                                                                        class="reg-float">
-                                                                                                                        <input
-                                                                                                                            type="number"
-                                                                                                                            id="bro_unmarried"
-                                                                                                                            name="bro_unmarried"
-                                                                                                                            placeholder=" "
-                                                                                                                            min="0"
-                                                                                                                            value="0"
-                                                                                                                            <?php echo sathi_reg_field_required_attr('siblings'); ?>>
-                                                                                                                        <label
-                                                                                                                            for="bro_unmarried">Unmarried</label>
+                                                                                                                            for="languages_known">Languages
+                                                                                                                            Known
+                                                                                                                            (e.g.
+                                                                                                                            Hindi,
+                                                                                                                            English)</label>
                                                                                                                     </div>
                                                                                                                 </div>
-                                                                                                                <span
-                                                                                                                    id="broErr"
-                                                                                                                    class="reg-error-msg sib-err">Married
-                                                                                                                    +
-                                                                                                                    unmarried
-                                                                                                                    must
-                                                                                                                    equal
-                                                                                                                    total
-                                                                                                                    (brothers).</span>
-                                                                                                                <p
-                                                                                                                    style="font-size:13px;font-weight:600;margin:18px 0 8px;">
-                                                                                                                    Sisters
-                                                                                                                </p>
-                                                                                                                <div
-                                                                                                                    class="reg-sibling-grid">
-                                                                                                                    <div
-                                                                                                                        class="reg-float">
-                                                                                                                        <input
-                                                                                                                            type="number"
-                                                                                                                            id="sis_total"
-                                                                                                                            name="sis_total"
-                                                                                                                            placeholder=" "
-                                                                                                                            min="0"
-                                                                                                                            value="0"
-                                                                                                                            <?php echo sathi_reg_field_required_attr('siblings'); ?>>
-                                                                                                                        <label
-                                                                                                                            for="sis_total">Total</label>
-                                                                                                                    </div>
-                                                                                                                    <div
-                                                                                                                        class="reg-float">
-                                                                                                                        <input
-                                                                                                                            type="number"
-                                                                                                                            id="sis_married"
-                                                                                                                            name="sis_married"
-                                                                                                                            placeholder=" "
-                                                                                                                            min="0"
-                                                                                                                            value="0"
-                                                                                                                            <?php echo sathi_reg_field_required_attr('siblings'); ?>>
-                                                                                                                        <label
-                                                                                                                            for="sis_married">Married</label>
-                                                                                                                    </div>
-                                                                                                                    <div
-                                                                                                                        class="reg-float">
-                                                                                                                        <input
-                                                                                                                            type="number"
-                                                                                                                            id="sis_unmarried"
-                                                                                                                            name="sis_unmarried"
-                                                                                                                            placeholder=" "
-                                                                                                                            min="0"
-                                                                                                                            value="0"
-                                                                                                                            <?php echo sathi_reg_field_required_attr('siblings'); ?>>
-                                                                                                                        <label
-                                                                                                                            for="sis_unmarried">Unmarried</label>
-                                                                                                                    </div>
-                                                                                                                </div>
-                                                                                                                <span
-                                                                                                                    id="sisErr"
-                                                                                                                    class="reg-error-msg sib-err">Married
-                                                                                                                    +
-                                                                                                                    unmarried
-                                                                                                                    must
-                                                                                                                    equal
-                                                                                                                    total
-                                                                                                                    (sisters).</span>
                                                                                                                 </div>
                                                                                                                 </div>
 
-                                                                                                                <!-- STEP 5 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Photo -->
+
+                                                                                                                <!-- STEP 4 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Family -->
                                                                                                                 <div class="reg-panel"
-                                                                                                                    data-panel="4">
+                                                                                                                    data-panel="3">
                                                                                                                     <h2
                                                                                                                         class="reg-section-title">
-                                                                                                                        Photo
-                                                                                                                        &amp;
-                                                                                                                        verification
+                                                                                                                        Family
+                                                                                                                        details
                                                                                                                     </h2>
-                                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('photo'); ?>>
-                                                                                                                        <label
-                                                                                                                            class="reg-upload reg-upload--photo"
-                                                                                                                            id="photoZone">
-                                                                                                                            <input
-                                                                                                                                type="file"
-                                                                                                                                id="photo"
-                                                                                                                                name="photo"
-                                                                                                                                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                                                                                                                                <?php echo sathi_reg_field_required_attr('photo'); ?>
-                                                                                                                                aria-label="Upload profile photo">
-                                                                                                                            <span
-                                                                                                                                class="reg-upload-body">
-                                                                                                                                <span
-                                                                                                                                    class="reg-upload-icon"
-                                                                                                                                    aria-hidden="true"><i
-                                                                                                                                        class="fa-solid fa-camera"></i></span>
-                                                                                                                                <span
-                                                                                                                                    class="reg-upload-title">Upload
-                                                                                                                                    profile
-                                                                                                                                    photograph</span>
-                                                                                                                                <span
-                                                                                                                                    class="reg-upload-hint">JPG
-                                                                                                                                    or
-                                                                                                                                    PNG
-                                                                                                                                    Ãƒâ€šÃ‚Â·
-                                                                                                                                    Max
-                                                                                                                                    5
-                                                                                                                                    MB
-                                                                                                                                    Ãƒâ€šÃ‚Â·
-                                                                                                                                    Clear
-                                                                                                                                    face
-                                                                                                                                    visible</span>
-                                                                                                                                <span
-                                                                                                                                    class="reg-progress"
-                                                                                                                                    id="photoProgress"><span
-                                                                                                                                        class="reg-progress-bar"
-                                                                                                                                        id="photoProgressBar"></span></span>
-                                                                                                                                <img src=""
-                                                                                                                                    alt=""
-                                                                                                                                    class="reg-preview"
-                                                                                                                                    id="photoPreview"
-                                                                                                                                    width="200"
-                                                                                                                                    height="200">
-                                                                                                                            </span>
-                                                                                                                        </label>
-                                                                                                                        <div
-                                                                                                                            class="reg-guidelines">
-                                                                                                                            <h4>Photo
-                                                                                                                                guidelines
-                                                                                                                            </h4>
-                                                                                                                            <ul>
-                                                                                                                                <li
-                                                                                                                                    class="ok">
-                                                                                                                                    Passport-style
-                                                                                                                                    preferred
-                                                                                                                                    Ãƒâ€šÃ‚Â·
-                                                                                                                                    Good
-                                                                                                                                    lighting
-                                                                                                                                </li>
-                                                                                                                                <li
-                                                                                                                                    class="ok">
-                                                                                                                                    Clear
-                                                                                                                                    face
-                                                                                                                                    visible
-                                                                                                                                </li>
-                                                                                                                                <li
-                                                                                                                                    class="bad">
-                                                                                                                                    No
-                                                                                                                                    selfies
-                                                                                                                                    Ãƒâ€šÃ‚Â·
-                                                                                                                                    No
-                                                                                                                                    group
-                                                                                                                                    photos
-                                                                                                                                    Ãƒâ€šÃ‚Â·
-                                                                                                                                    No
-                                                                                                                                    heavy
-                                                                                                                                    filters
-                                                                                                                                </li>
-                                                                                                                            </ul>
-                                                                                                                        </div>
-                                                                                                                        <p class="reg-trust-strip"
-                                                                                                                            style="justify-content:flex-start;margin-top:16px;">
-                                                                                                                            <span><i
-                                                                                                                                    class="fa-solid fa-lock"></i>
-                                                                                                                                Secure
-                                                                                                                                upload</span>
-                                                                                                                            <span><i
-                                                                                                                                    class="fa-solid fa-user-check"></i>
-                                                                                                                                Admin
-                                                                                                                                review
-                                                                                                                                before
-                                                                                                                                profile
-                                                                                                                                is
-                                                                                                                                live</span>
-                                                                                                                        </p>
-                                                                                                                </div>
-                                                                                                                </div>
-
-                                                                                                                <!-- STEP 6 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Payment (after upload) -->
-                                                                                                                <div class="reg-panel"
-                                                                                                                    data-panel="5">
-                                                                                                                    <h2
-                                                                                                                        class="reg-section-title">
-                                                                                                                        Membership
-                                                                                                                        payment
-                                                                                                                    </h2>
-                                                                                                                    <p
-                                                                                                                        class="reg-payment-intro">
-                                                                                                                        Activate
-                                                                                                                        your
-                                                                                                                        profile
-                                                                                                                        listing
-                                                                                                                        with
-                                                                                                                        the
-                                                                                                                        bureau
-                                                                                                                        registration
-                                                                                                                        fee.
-                                                                                                                        Payment
-                                                                                                                        gateway
-                                                                                                                        integration
-                                                                                                                        can
-                                                                                                                        be
-                                                                                                                        connected
-                                                                                                                        later
-                                                                                                                        ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
-                                                                                                                        select
-                                                                                                                        a
-                                                                                                                        method
-                                                                                                                        below
-                                                                                                                        to
-                                                                                                                        continue.
-                                                                                                                    </p>
-
                                                                                                                     <div
-                                                                                                                        class="reg-payment-card">
+                                                                                                                        class="reg-split">
                                                                                                                         <div
-                                                                                                                            class="reg-payment-card-head">
-                                                                                                                            <div>
-                                                                                                                                <span
-                                                                                                                                    class="reg-payment-badge">Registration</span>
-                                                                                                                                <h3
-                                                                                                                                    class="reg-payment-plan-name">
-                                                                                                                                    Standard
-                                                                                                                                    Ãƒâ€šÃ‚Â·
-                                                                                                                                    180
-                                                                                                                                    days
-                                                                                                                                </h3>
-                                                                                                                                <p
-                                                                                                                                    class="reg-payment-plan-meta">
-                                                                                                                                    Profile
-                                                                                                                                    visibility
-                                                                                                                                    Ãƒâ€šÃ‚Â·
-                                                                                                                                    Basic
-                                                                                                                                    match
-                                                                                                                                    suggestions
-                                                                                                                                </p>
-                                                                                                                            </div>
-                                                                                                                            <p
-                                                                                                                                class="reg-payment-amount">
-                                                                                                                                <span
-                                                                                                                                    class="reg-payment-currency">ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹</span>999
-                                                                                                                            </p>
+                                                                                                                            class="reg-subcard">
+                                                                                                                            <h3><i
+                                                                                                                                    class="fa-solid fa-user-tie"></i>
+                                                                                                                                Father
+                                                                                                                            </h3>
+                                                                                                                            <div<?php echo sathi_reg_field_wrap_attrs('father_name'); ?>>
+                                                                                                                                <div
+                                                                                                                                    class="reg-float">
+                                                                                                                                    <input
+                                                                                                                                        type="text"
+                                                                                                                                        id="father_name"
+                                                                                                                                        name="father_name"
+                                                                                                                                        placeholder=" "
+                                                                                                                                        <?php echo sathi_reg_field_required_attr('father_name'); ?>>
+                                                                                                                                    <label
+                                                                                                                                        for="father_name">Father's
+                                                                                                                                        name
+                                                                                                                                        (Optional)</label>
+                                                                                                                                </div>
                                                                                                                         </div>
-                                                                                                                        <ul
-                                                                                                                            class="reg-payment-features">
-                                                                                                                            <li><i class="fa-solid fa-check"
-                                                                                                                                    aria-hidden="true"></i>
-                                                                                                                                Profile
-                                                                                                                                listed
-                                                                                                                                after
-                                                                                                                                admin
-                                                                                                                                verification
-                                                                                                                            </li>
-                                                                                                                            <li><i class="fa-solid fa-check"
-                                                                                                                                    aria-hidden="true"></i>
-                                                                                                                                Secure
-                                                                                                                                document
-                                                                                                                                &amp;
-                                                                                                                                photo
-                                                                                                                                review
-                                                                                                                            </li>
-                                                                                                                            <li><i class="fa-solid fa-check"
-                                                                                                                                    aria-hidden="true"></i>
-                                                                                                                                Upgrade
-                                                                                                                                anytime
-                                                                                                                                to
-                                                                                                                                Premium
-                                                                                                                            </li>
-                                                                                                                        </ul>
-                                                                                                                    </div>
-
-                                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('pay_method'); ?>>
-                                                                                                                        <fieldset
-                                                                                                                            class="reg-payment-fieldset">
-                                                                                                                            <legend
-                                                                                                                                class="reg-payment-legend">
-                                                                                                                                Choose
-                                                                                                                                payment
-                                                                                                                                method
-                                                                                                                            </legend>
-                                                                                                                            <label
-                                                                                                                                class="reg-pay-option">
+                                                                                                                        <div<?php echo sathi_reg_field_wrap_attrs('father_mobile'); ?>>
+                                                                                                                            <div
+                                                                                                                                class="reg-float">
                                                                                                                                 <input
-                                                                                                                                    type="radio"
-                                                                                                                                    name="pay_method"
-                                                                                                                                    value="razorpay"
-                                                                                                                                    checked>
-                                                                                                                                <span
-                                                                                                                                    class="reg-pay-option-body">
+                                                                                                                                    type="tel"
+                                                                                                                                    id="father_mobile"
+                                                                                                                                    name="father_mobile"
+                                                                                                                                    placeholder=" "
+                                                                                                                                    maxlength="10"
+                                                                                                                                    pattern="[0-9]{10}"
+                                                                                                                                    <?php echo sathi_reg_field_required_attr('father_mobile'); ?>>
+                                                                                                                                <label
+                                                                                                                                    for="father_mobile">Mobile
+                                                                                                                                    (Optional)</label>
+                                                                                                                            </div>
+                                                                                                                    </div>
+                                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('father_income'); ?>>
+                                                                                                                        <div
+                                                                                                                            class="reg-float">
+                                                                                                                            <input
+                                                                                                                                type="text"
+                                                                                                                                id="father_income"
+                                                                                                                                name="father_income"
+                                                                                                                                placeholder=" "
+                                                                                                                                inputmode="numeric"
+                                                                                                                                <?php echo sathi_reg_field_required_attr('father_income'); ?>>
+                                                                                                                            <label
+                                                                                                                                for="father_income">Annual
+                                                                                                                                income
+                                                                                                                                (Optional)</label>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                                <div<?php echo sathi_reg_field_wrap_attrs('father_occ'); ?>>
+                                                                                                                    <div
+                                                                                                                        class="reg-float">
+                                                                                                                        <input
+                                                                                                                            type="text"
+                                                                                                                            id="father_occ"
+                                                                                                                            name="father_occ"
+                                                                                                                            placeholder=" "
+                                                                                                                            <?php echo sathi_reg_field_required_attr('father_occ'); ?>>
+                                                                                                                        <label
+                                                                                                                            for="father_occ">Occupation</label>
+                                                                                                                    </div>
+                                                                                                                    </div>
+                                                                                                                    </div>
+                                                                                                                    <div
+                                                                                                                        class="reg-subcard">
+                                                                                                                        <h3><i
+                                                                                                                                class="fa-solid fa-user"></i>
+                                                                                                                            Mother
+                                                                                                                        </h3>
+                                                                                                                        <div<?php echo sathi_reg_field_wrap_attrs('mother_name'); ?>>
+                                                                                                                            <div
+                                                                                                                                class="reg-float">
+                                                                                                                                <input
+                                                                                                                                    type="text"
+                                                                                                                                    id="mother_name"
+                                                                                                                                    name="mother_name"
+                                                                                                                                    placeholder=" "
+                                                                                                                                    <?php echo sathi_reg_field_required_attr('mother_name'); ?>>
+                                                                                                                                <label
+                                                                                                                                    for="mother_name">Mother's
+                                                                                                                                    name
+                                                                                                                                    (Optional)</label>
+                                                                                                                            </div>
+                                                                                                                    </div>
+                                                                                                                    <div<?php echo sathi_reg_field_wrap_attrs('mother_mobile'); ?>>
+                                                                                                                        <div
+                                                                                                                            class="reg-float">
+                                                                                                                            <input
+                                                                                                                                type="tel"
+                                                                                                                                id="mother_mobile"
+                                                                                                                                name="mother_mobile"
+                                                                                                                                placeholder=" "
+                                                                                                                                maxlength="10"
+                                                                                                                                pattern="[0-9]{10}"
+                                                                                                                                <?php echo sathi_reg_field_required_attr('mother_mobile'); ?>>
+                                                                                                                            <label
+                                                                                                                                for="mother_mobile">Mobile
+                                                                                                                                (Optional)</label>
+                                                                                                                        </div>
+                                                                                                                        </div>
+                                                                                                                        <div<?php echo sathi_reg_field_wrap_attrs('mother_income'); ?>>
+                                                                                                                            <div
+                                                                                                                                class="reg-float">
+                                                                                                                                <input
+                                                                                                                                    type="text"
+                                                                                                                                    id="mother_income"
+                                                                                                                                    name="mother_income"
+                                                                                                                                    placeholder=" "
+                                                                                                                                    inputmode="numeric"
+                                                                                                                                    <?php echo sathi_reg_field_required_attr('mother_income'); ?>>
+                                                                                                                                <label
+                                                                                                                                    for="mother_income">Annual
+                                                                                                                                    income
+                                                                                                                                    (Optional)</label>
+                                                                                                                            </div>
+                                                                                                                            </div>
+                                                                                                                            </div>
+                                                                                                                            </div>
+                                                                                                                            <div<?php echo sathi_reg_field_wrap_attrs('relative_details'); ?>
+                                                                                                                                class="reg-subcard"
+                                                                                                                                style="margin-top:20px;">
+                                                                                                                                <h3><i
+                                                                                                                                        class="fa-solid fa-users-rectangle"></i>
+                                                                                                                                    Relative
+                                                                                                                                    details
+                                                                                                                                </h3>
+                                                                                                                                <div
+                                                                                                                                    class="reg-float">
+                                                                                                                                    <textarea
+                                                                                                                                        id="relative_details"
+                                                                                                                                        name="relative_details"
+                                                                                                                                        placeholder=" "
+                                                                                                                                        <?php echo sathi_reg_field_required_attr('relative_details'); ?>
+                                                                                                                                        rows="3"></textarea>
+                                                                                                                                    <label
+                                                                                                                                        for="relative_details">Relative
+                                                                                                                                        Information
+                                                                                                                                        (Optional)</label>
+                                                                                                                                </div>
+                                                                                                                                </div>
+                                                                                                                                <div<?php echo sathi_reg_field_wrap_attrs('siblings'); ?>
+                                                                                                                                    class="reg-subcard"
+                                                                                                                                    style="margin-top:20px;">
+                                                                                                                                    <h3><i
+                                                                                                                                            class="fa-solid fa-people-roof"></i>
+                                                                                                                                        Siblings
+                                                                                                                                    </h3>
+                                                                                                                                    <p
+                                                                                                                                        style="font-size:12px;color:#666;margin-bottom:14px;">
+                                                                                                                                        Married
+                                                                                                                                        +
+                                                                                                                                        unmarried
+                                                                                                                                        must
+                                                                                                                                        equal
+                                                                                                                                        total
+                                                                                                                                        for
+                                                                                                                                        brothers
+                                                                                                                                        and
+                                                                                                                                        sisters.
+                                                                                                                                    </p>
+                                                                                                                                    <p
+                                                                                                                                        style="font-size:13px;font-weight:600;margin-bottom:8px;">
+                                                                                                                                        Brothers
+                                                                                                                                    </p>
+                                                                                                                                    <div
+                                                                                                                                        class="reg-sibling-grid">
+                                                                                                                                        <div
+                                                                                                                                            class="reg-float">
+                                                                                                                                            <input
+                                                                                                                                                type="number"
+                                                                                                                                                id="bro_total"
+                                                                                                                                                name="bro_total"
+                                                                                                                                                placeholder=" "
+                                                                                                                                                min="0"
+                                                                                                                                                value="0"
+                                                                                                                                                <?php echo sathi_reg_field_required_attr('siblings'); ?>>
+                                                                                                                                            <label
+                                                                                                                                                for="bro_total">Total</label>
+                                                                                                                                        </div>
+                                                                                                                                        <div
+                                                                                                                                            class="reg-float">
+                                                                                                                                            <input
+                                                                                                                                                type="number"
+                                                                                                                                                id="bro_married"
+                                                                                                                                                name="bro_married"
+                                                                                                                                                placeholder=" "
+                                                                                                                                                min="0"
+                                                                                                                                                value="0"
+                                                                                                                                                <?php echo sathi_reg_field_required_attr('siblings'); ?>>
+                                                                                                                                            <label
+                                                                                                                                                for="bro_married">Married</label>
+                                                                                                                                        </div>
+                                                                                                                                        <div
+                                                                                                                                            class="reg-float">
+                                                                                                                                            <input
+                                                                                                                                                type="number"
+                                                                                                                                                id="bro_unmarried"
+                                                                                                                                                name="bro_unmarried"
+                                                                                                                                                placeholder=" "
+                                                                                                                                                min="0"
+                                                                                                                                                value="0"
+                                                                                                                                                <?php echo sathi_reg_field_required_attr('siblings'); ?>>
+                                                                                                                                            <label
+                                                                                                                                                for="bro_unmarried">Unmarried</label>
+                                                                                                                                        </div>
+                                                                                                                                    </div>
                                                                                                                                     <span
-                                                                                                                                        class="reg-pay-title"><i
-                                                                                                                                            class="fa-solid fa-bolt"
-                                                                                                                                            aria-hidden="true"></i>
-                                                                                                                                        Razorpay</span>
+                                                                                                                                        id="broErr"
+                                                                                                                                        class="reg-error-msg sib-err">Married
+                                                                                                                                        +
+                                                                                                                                        unmarried
+                                                                                                                                        must
+                                                                                                                                        equal
+                                                                                                                                        total
+                                                                                                                                        (brothers).</span>
+                                                                                                                                    <p
+                                                                                                                                        style="font-size:13px;font-weight:600;margin:18px 0 8px;">
+                                                                                                                                        Sisters
+                                                                                                                                    </p>
+                                                                                                                                    <div
+                                                                                                                                        class="reg-sibling-grid">
+                                                                                                                                        <div
+                                                                                                                                            class="reg-float">
+                                                                                                                                            <input
+                                                                                                                                                type="number"
+                                                                                                                                                id="sis_total"
+                                                                                                                                                name="sis_total"
+                                                                                                                                                placeholder=" "
+                                                                                                                                                min="0"
+                                                                                                                                                value="0"
+                                                                                                                                                <?php echo sathi_reg_field_required_attr('siblings'); ?>>
+                                                                                                                                            <label
+                                                                                                                                                for="sis_total">Total</label>
+                                                                                                                                        </div>
+                                                                                                                                        <div
+                                                                                                                                            class="reg-float">
+                                                                                                                                            <input
+                                                                                                                                                type="number"
+                                                                                                                                                id="sis_married"
+                                                                                                                                                name="sis_married"
+                                                                                                                                                placeholder=" "
+                                                                                                                                                min="0"
+                                                                                                                                                value="0"
+                                                                                                                                                <?php echo sathi_reg_field_required_attr('siblings'); ?>>
+                                                                                                                                            <label
+                                                                                                                                                for="sis_married">Married</label>
+                                                                                                                                        </div>
+                                                                                                                                        <div
+                                                                                                                                            class="reg-float">
+                                                                                                                                            <input
+                                                                                                                                                type="number"
+                                                                                                                                                id="sis_unmarried"
+                                                                                                                                                name="sis_unmarried"
+                                                                                                                                                placeholder=" "
+                                                                                                                                                min="0"
+                                                                                                                                                value="0"
+                                                                                                                                                <?php echo sathi_reg_field_required_attr('siblings'); ?>>
+                                                                                                                                            <label
+                                                                                                                                                for="sis_unmarried">Unmarried</label>
+                                                                                                                                        </div>
+                                                                                                                                    </div>
                                                                                                                                     <span
-                                                                                                                                        class="reg-pay-sub">Cards,
-                                                                                                                                        UPI,
-                                                                                                                                        netbanking</span>
-                                                                                                                                </span>
-                                                                                                                            </label>
-                                                                                                                        </fieldset>
-                                                                                                                </div>
+                                                                                                                                        id="sisErr"
+                                                                                                                                        class="reg-error-msg sib-err">Married
+                                                                                                                                        +
+                                                                                                                                        unmarried
+                                                                                                                                        must
+                                                                                                                                        equal
+                                                                                                                                        total
+                                                                                                                                        (sisters).</span>
+                                                                                                                                    </div>
+                                                                                                                                    </div>
 
-                                                                                                                </div>
+                                                                                                                                    <!-- STEP 5 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Photo -->
+                                                                                                                                    <div class="reg-panel"
+                                                                                                                                        data-panel="4">
+                                                                                                                                        <h2
+                                                                                                                                            class="reg-section-title">
+                                                                                                                                            Photo
+                                                                                                                                            &amp;
+                                                                                                                                            verification
+                                                                                                                                        </h2>
+                                                                                                                                        <div<?php echo sathi_reg_field_wrap_attrs('photo'); ?>>
+                                                                                                                                            <label
+                                                                                                                                                class="reg-upload reg-upload--photo"
+                                                                                                                                                id="photoZone">
+                                                                                                                                                <input
+                                                                                                                                                    type="file"
+                                                                                                                                                    id="photo"
+                                                                                                                                                    name="photo"
+                                                                                                                                                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                                                                                                                                    <?php echo sathi_reg_field_required_attr('photo'); ?>
+                                                                                                                                                    aria-label="Upload profile photo">
+                                                                                                                                                <span
+                                                                                                                                                    class="reg-upload-body">
+                                                                                                                                                    <span
+                                                                                                                                                        class="reg-upload-icon"
+                                                                                                                                                        aria-hidden="true"><i
+                                                                                                                                                            class="fa-solid fa-camera"></i></span>
+                                                                                                                                                    <span
+                                                                                                                                                        class="reg-upload-title">Upload
+                                                                                                                                                        profile
+                                                                                                                                                        photograph</span>
+                                                                                                                                                    <span
+                                                                                                                                                        class="reg-upload-hint">JPG
+                                                                                                                                                        or
+                                                                                                                                                        PNG
+                                                                                                                                                        Ãƒâ€šÃ‚Â·
+                                                                                                                                                        Max
+                                                                                                                                                        5
+                                                                                                                                                        MB
+                                                                                                                                                        Ãƒâ€šÃ‚Â·
+                                                                                                                                                        Clear
+                                                                                                                                                        face
+                                                                                                                                                        visible</span>
+                                                                                                                                                    <span
+                                                                                                                                                        class="reg-progress"
+                                                                                                                                                        id="photoProgress"><span
+                                                                                                                                                            class="reg-progress-bar"
+                                                                                                                                                            id="photoProgressBar"></span></span>
+                                                                                                                                                    <img src=""
+                                                                                                                                                        alt=""
+                                                                                                                                                        class="reg-preview"
+                                                                                                                                                        id="photoPreview"
+                                                                                                                                                        width="200"
+                                                                                                                                                        height="200">
+                                                                                                                                                </span>
+                                                                                                                                            </label>
+                                                                                                                                            <div
+                                                                                                                                                class="reg-guidelines">
+                                                                                                                                                <h4>Photo
+                                                                                                                                                    guidelines
+                                                                                                                                                </h4>
+                                                                                                                                                <ul>
+                                                                                                                                                    <li
+                                                                                                                                                        class="ok">
+                                                                                                                                                        Passport-style
+                                                                                                                                                        preferred
+                                                                                                                                                        Ãƒâ€šÃ‚Â·
+                                                                                                                                                        Good
+                                                                                                                                                        lighting
+                                                                                                                                                    </li>
+                                                                                                                                                    <li
+                                                                                                                                                        class="ok">
+                                                                                                                                                        Clear
+                                                                                                                                                        face
+                                                                                                                                                        visible
+                                                                                                                                                    </li>
+                                                                                                                                                    <li
+                                                                                                                                                        class="bad">
+                                                                                                                                                        No
+                                                                                                                                                        selfies
+                                                                                                                                                        Ãƒâ€šÃ‚Â·
+                                                                                                                                                        No
+                                                                                                                                                        group
+                                                                                                                                                        photos
+                                                                                                                                                        Ãƒâ€šÃ‚Â·
+                                                                                                                                                        No
+                                                                                                                                                        heavy
+                                                                                                                                                        filters
+                                                                                                                                                    </li>
+                                                                                                                                                </ul>
+                                                                                                                                            </div>
+                                                                                                                                            <p class="reg-trust-strip"
+                                                                                                                                                style="justify-content:flex-start;margin-top:16px;">
+                                                                                                                                                <span><i
+                                                                                                                                                        class="fa-solid fa-lock"></i>
+                                                                                                                                                    Secure
+                                                                                                                                                    upload</span>
+                                                                                                                                                <span><i
+                                                                                                                                                        class="fa-solid fa-user-check"></i>
+                                                                                                                                                    Admin
+                                                                                                                                                    review
+                                                                                                                                                    before
+                                                                                                                                                    profile
+                                                                                                                                                    is
+                                                                                                                                                    live</span>
+                                                                                                                                            </p>
+                                                                                                                                    </div>
+                                                                                                                                    </div>
 
-                                                                                                                <div
-                                                                                                                    class="reg-nav">
-                                                                                                                    <button
-                                                                                                                        type="button"
-                                                                                                                        class="reg-btn reg-btn--prev"
-                                                                                                                        id="btnPrev">Back</button>
-                                                                                                                    <button
-                                                                                                                        type="button"
-                                                                                                                        class="reg-btn reg-btn--next"
-                                                                                                                        id="btnNext">Continue</button>
-                                                                                                                    <button
-                                                                                                                        type="submit"
-                                                                                                                        class="reg-btn reg-btn--primary"
-                                                                                                                        id="btnSubmit">Pay
-                                                                                                                        &
-                                                                                                                        submit
-                                                                                                                        registration</button>
-                                                                                                                </div>
-                                                                                                                </form>
-                                                                                                                </div>
-                                                                                                                </div>
-                                                                                                                </div>
-                                                                                                                </div>
+                                                                                                                                    <!-- STEP 6 – Payment (after upload) -->
+                                                                                                                                    <?php if ($payment_enabled): ?>
+                                                                                                                                        <div class="reg-panel"
+                                                                                                                                            data-panel="5">
+                                                                                                                                            <h2
+                                                                                                                                                class="reg-section-title">
+                                                                                                                                                Membership
+                                                                                                                                                payment
+                                                                                                                                            </h2>
+                                                                                                                                            <p
+                                                                                                                                                class="reg-payment-intro">
+                                                                                                                                                Activate
+                                                                                                                                                your
+                                                                                                                                                profile
+                                                                                                                                                listing
+                                                                                                                                                with
+                                                                                                                                                the
+                                                                                                                                                bureau
+                                                                                                                                                registration
+                                                                                                                                                fee.
+                                                                                                                                                Payment
+                                                                                                                                                gateway
+                                                                                                                                                integration
+                                                                                                                                                can
+                                                                                                                                                be
+                                                                                                                                                connected
+                                                                                                                                                later
+                                                                                                                                                –
+                                                                                                                                                select
+                                                                                                                                                a
+                                                                                                                                                method
+                                                                                                                                                below
+                                                                                                                                                to
+                                                                                                                                                continue.
+                                                                                                                                            </p>
+
+                                                                                                                                            <div
+                                                                                                                                                class="reg-payment-card">
+                                                                                                                                                <div
+                                                                                                                                                    class="reg-payment-card-head">
+                                                                                                                                                    <div>
+                                                                                                                                                        <span
+                                                                                                                                                            class="reg-payment-badge">Registration</span>
+                                                                                                                                                        <h3
+                                                                                                                                                            class="reg-payment-plan-name">
+                                                                                                                                                            Standard
+                                                                                                                                                            ·
+                                                                                                                                                            180
+                                                                                                                                                            days
+                                                                                                                                                        </h3>
+                                                                                                                                                        <p
+                                                                                                                                                            class="reg-payment-plan-meta">
+                                                                                                                                                            Profile
+                                                                                                                                                            visibility
+                                                                                                                                                            ·
+                                                                                                                                                            Basic
+                                                                                                                                                            match
+                                                                                                                                                            suggestions
+                                                                                                                                                        </p>
+                                                                                                                                                    </div>
+                                                                                                                                                    <p
+                                                                                                                                                        class="reg-payment-amount">
+                                                                                                                                                        <span
+                                                                                                                                                            class="reg-payment-currency">₹</span>999
+                                                                                                                                                    </p>
+                                                                                                                                                </div>
+                                                                                                                                                <ul
+                                                                                                                                                    class="reg-payment-features">
+                                                                                                                                                    <li><i class="fa-solid fa-check"
+                                                                                                                                                            aria-hidden="true"></i>
+                                                                                                                                                        Profile
+                                                                                                                                                        listed
+                                                                                                                                                        after
+                                                                                                                                                        admin
+                                                                                                                                                        verification
+                                                                                                                                                    </li>
+                                                                                                                                                    <li><i class="fa-solid fa-check"
+                                                                                                                                                            aria-hidden="true"></i>
+                                                                                                                                                        Secure
+                                                                                                                                                        document
+                                                                                                                                                        &amp;
+                                                                                                                                                        photo
+                                                                                                                                                        review
+                                                                                                                                                    </li>
+                                                                                                                                                    <li><i class="fa-solid fa-check"
+                                                                                                                                                            aria-hidden="true"></i>
+                                                                                                                                                        Upgrade
+                                                                                                                                                        anytime
+                                                                                                                                                        to
+                                                                                                                                                        Premium
+                                                                                                                                                    </li>
+                                                                                                                                                </ul>
+                                                                                                                                            </div>
+
+                                                                                                                                            <div<?php echo sathi_reg_field_wrap_attrs('pay_method'); ?>>
+                                                                                                                                                <fieldset
+                                                                                                                                                    class="reg-payment-fieldset">
+                                                                                                                                                    <legend
+                                                                                                                                                        class="reg-payment-legend">
+                                                                                                                                                        Choose
+                                                                                                                                                        payment
+                                                                                                                                                        method
+                                                                                                                                                    </legend>
+                                                                                                                                                    <label
+                                                                                                                                                        class="reg-pay-option">
+                                                                                                                                                        <input
+                                                                                                                                                            type="radio"
+                                                                                                                                                            name="pay_method"
+                                                                                                                                                            value="razorpay"
+                                                                                                                                                            checked>
+                                                                                                                                                        <span
+                                                                                                                                                            class="reg-pay-option-body">
+                                                                                                                                                            <span
+                                                                                                                                                                class="reg-pay-title"><i
+                                                                                                                                                                    class="fa-solid fa-bolt"
+                                                                                                                                                                    aria-hidden="true"></i>
+                                                                                                                                                                Razorpay</span>
+                                                                                                                                                            <span
+                                                                                                                                                                class="reg-pay-sub">Cards,
+                                                                                                                                                                UPI,
+                                                                                                                                                                netbanking</span>
+                                                                                                                                                        </span>
+                                                                                                                                                    </label>
+                                                                                                                                                </fieldset>
+                                                                                                                                        </div>
+                                                                                                                                        </div>
+                                                                                                                                    <?php endif; ?>
+
+                                                                                                                                    <div
+                                                                                                                                        class="reg-nav">
+                                                                                                                                        <button
+                                                                                                                                            type="button"
+                                                                                                                                            class="reg-btn reg-btn--prev"
+                                                                                                                                            id="btnPrev">Back</button>
+                                                                                                                                        <button
+                                                                                                                                            type="button"
+                                                                                                                                            class="reg-btn reg-btn--next"
+                                                                                                                                            id="btnNext">Continue</button>
+                                                                                                                                        <button
+                                                                                                                                            type="submit"
+                                                                                                                                            class="reg-btn reg-btn--primary"
+                                                                                                                                            id="btnSubmit"><?php echo $payment_enabled ? 'Pay & submit registration' : 'Complete Registration'; ?></button>
+                                                                                                                                    </div>
+                                                                                                                                    </form>
+                                                                                                                                    </div>
+                                                                                                                                    </div>
+                                                                                                                                    </div>
+                                                                                                                                    </div>
 </main>
 
 <script>
@@ -1095,6 +1215,7 @@ include 'header.php';
         const btnPrev = document.getElementById('btnPrev');
         const btnNext = document.getElementById('btnNext');
         const btnSubmit = document.getElementById('btnSubmit');
+        const paymentEnabled = <?php echo $payment_enabled ? 'true' : 'false'; ?>;
         let step = 0;
 
         function showStep(n) {
@@ -1263,6 +1384,11 @@ include 'header.php';
                 return;
             }
 
+            if (!paymentEnabled) {
+                submitRegistration();
+                return;
+            }
+
             const options = {
                 "key": "rzp_test_S7dlJIqMvrpcaj",
                 "amount": 99900,
@@ -1302,14 +1428,14 @@ include 'header.php';
                     } else {
                         alert(data.error || 'Registration failed');
                         btnSubmit.disabled = false;
-                        btnSubmit.textContent = 'Pay & submit registration';
+                        btnSubmit.textContent = paymentEnabled ? 'Pay & submit registration' : 'Complete Registration';
                     }
                 })
                 .catch(err => {
                     console.error(err);
                     alert('Network error. Please try again.');
                     btnSubmit.disabled = false;
-                    btnSubmit.textContent = 'Pay & submit registration';
+                    btnSubmit.textContent = paymentEnabled ? 'Pay & submit registration' : 'Complete Registration';
                 });
         }
 

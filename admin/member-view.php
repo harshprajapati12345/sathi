@@ -28,15 +28,28 @@ require __DIR__ . '/includes/head.php';
     <div class="admin-dashboard-row">
       <div class="admin-glass-card">
         <h2 style="margin-top:0;font-size:1rem;">Photo</h2>
-        <?php if (!empty($member['profile_photo'])): ?>
-          <img
-            src="../uploads/profiles/<?php echo htmlspecialchars((string) $member['profile_photo'], ENT_QUOTES, 'UTF-8'); ?>"
-            alt="" style="max-width:200px;height:auto;display:block;margin:0 auto;border-radius:10px;">
+        <?php 
+        $photoSrc = '';
+        if (!empty($member['profile_photo_url'])) {
+            $photoVal = $member['profile_photo_url'];
+            if (strpos($photoVal, 'http') === 0 || strpos($photoVal, 'data:') === 0) {
+                $photoSrc = $photoVal;
+            } else {
+                $photoSrc = '../uploads/profiles/' . $photoVal;
+            }
+        } elseif (!empty($member['profile_photo'])) {
+            $photoSrc = '../uploads/profiles/' . $member['profile_photo'];
+        }
+        ?>
+        <?php if (!empty($photoSrc)): ?>
+          <img src="<?php echo htmlspecialchars((string) $photoSrc, ENT_QUOTES, 'UTF-8'); ?>" alt=""
+            style="max-width:200px;height:auto;display:block;margin:0 auto;border-radius:10px;">
         <?php else: ?>
           <div class="admin-thumb" style="width:120px;height:120px;font-size:3rem;margin:0 auto;">👤</div>
         <?php endif; ?>
         <p style="text-align:center;margin:12px 0 0;color:var(--admin-muted);font-size:13px;">
-          <?php echo htmlspecialchars((string) $member['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+          <?php echo htmlspecialchars((string) $member['name'], ENT_QUOTES, 'UTF-8'); ?>
+        </p>
       </div>
       <div class="admin-glass-card">
         <h2 style="margin-top:0;font-size:1rem;">Quick facts</h2>
@@ -57,14 +70,18 @@ require __DIR__ . '/includes/head.php';
           <li><strong>Joined:</strong>
             <?php echo htmlspecialchars((string) ($member['created_at'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></li>
           <li><strong>Payment ID:</strong>
-            <code style="background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px;"><?php echo htmlspecialchars((string) ($member['razorpay_payment_id'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></code></li>
+            <code
+              style="background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px;"><?php echo htmlspecialchars((string) ($member['razorpay_payment_id'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></code>
+          </li>
         </ul>
         <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
-          <?php if (strtolower((string)$member['status']) !== 'approved' && strtolower((string)$member['status']) !== 'active'): ?>
-            <button onclick="updateMemberStatus(<?php echo (int)$member['id']; ?>, 'approved')" class="admin-btn" style="background:#28a745;border:none;">Approve member</button>
+          <?php if (strtolower((string) $member['status']) !== 'approved' && strtolower((string) $member['status']) !== 'active'): ?>
+            <button onclick="updateMemberStatus(<?php echo (int) $member['id']; ?>, 'approved')" class="admin-btn"
+              style="background:#28a745;border:none;">Approve member</button>
           <?php endif; ?>
-          <?php if (strtolower((string)$member['status']) !== 'rejected'): ?>
-            <button onclick="updateMemberStatus(<?php echo (int)$member['id']; ?>, 'rejected')" class="admin-btn" style="background:#dc3545;border:none;">Reject member</button>
+          <?php if (strtolower((string) $member['status']) !== 'rejected'): ?>
+            <button onclick="updateMemberStatus(<?php echo (int) $member['id']; ?>, 'rejected')" class="admin-btn"
+              style="background:#dc3545;border:none;">Reject member</button>
           <?php endif; ?>
           <a href="member-edit.php?id=<?php echo (int) $member['id']; ?>" class="admin-btn admin-btn-primary">Edit
             profile</a>
@@ -72,31 +89,31 @@ require __DIR__ . '/includes/head.php';
         </div>
 
         <script>
-        function updateMemberStatus(id, status) {
-            if(!confirm('Are you sure you want to set this member to ' + status + '?')) return;
-            
+          function updateMemberStatus(id, status) {
+            if (!confirm('Are you sure you want to set this member to ' + status + '?')) return;
+
             const fd = new FormData();
             fd.append('id', id);
             fd.append('status', status);
-            
+
             fetch('api/update-member-status.php', {
-                method: 'POST',
-                body: fd
+              method: 'POST',
+              body: fd
             })
-            .then(r => r.json())
-            .then(data => {
-                if(data.ok) {
-                    alert('Status updated successfully');
-                    location.reload();
+              .then(r => r.json())
+              .then(data => {
+                if (data.ok) {
+                  alert('Status updated successfully');
+                  location.reload();
                 } else {
-                    alert('Error: ' + data.error);
+                  alert('Error: ' + data.error);
                 }
-            })
-            .catch(err => {
+              })
+              .catch(err => {
                 console.error(err);
                 alert('Connection error');
-            });
-        }
+              });
+          }
         </script>
       </div>
     </div>
@@ -116,7 +133,8 @@ require __DIR__ . '/includes/head.php';
           </tr>
           <tr>
             <td>Mother Tongue:</td>
-            <td><?php echo htmlspecialchars((string) ($member['mother_tongue_val'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars((string) ($member['mother_tongue_val'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?>
+            </td>
           </tr>
           <tr>
             <td>Marital Status:</td>
@@ -151,6 +169,10 @@ require __DIR__ . '/includes/head.php';
             <td><?php echo htmlspecialchars((string) ($member['birth_place'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
           </tr>
           <tr>
+            <td>Native Place:</td>
+            <td><?php echo htmlspecialchars((string) ($member['native_place'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
             <td>Star (Nakshatra):</td>
             <td><?php echo htmlspecialchars((string) ($member['star'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
           </tr>
@@ -170,18 +192,91 @@ require __DIR__ . '/includes/head.php';
       <!-- Location -->
       <div class="admin-glass-card">
         <h2 style="margin-top:0;font-size:1rem;"><i class="fas fa-map-marker-alt"></i> Location Details</h2>
-        <h3 style="font-size:13px;color:var(--admin-brand);">Birth Location</h3>
+        <h3 style="font-size:13px;color:var(--admin-brand);">Permanent Address</h3>
         <p style="font-size:13px;margin:5px 0 15px;">
-          <?php echo htmlspecialchars((string) ($member['birth_city'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
-          <?php echo htmlspecialchars((string) ($member['birth_state'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
-          <?php echo htmlspecialchars((string) ($member['birth_country'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+          <?php echo htmlspecialchars((string) ($member['permanent_address'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?>
+        </p>
 
-        <h3 style="font-size:13px;color:var(--admin-brand);">Native Location</h3>
+        <h3 style="font-size:13px;color:var(--admin-brand);">Current Address</h3>
         <p style="font-size:13px;margin:5px 0 0;">
-          <?php echo htmlspecialchars((string) ($member['native_locality'] ?? ''), ENT_QUOTES, 'UTF-8'); ?><br>
-          <?php echo htmlspecialchars((string) ($member['native_city'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
-          <?php echo htmlspecialchars((string) ($member['native_state'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
-          <?php echo htmlspecialchars((string) ($member['native_country'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p>
+          <?php echo htmlspecialchars((string) ($member['current_address'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?>
+        </p>
+      </div>
+
+      <!-- Education & Work -->
+      <div class="admin-glass-card">
+        <h2 style="margin-top:0;font-size:1rem;"><i class="fas fa-graduation-cap"></i> Education & Work</h2>
+        <table class="admin-table-info">
+          <tr>
+            <td>Education:</td>
+            <td><?php echo htmlspecialchars((string) ($member['education_val'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Occupation:</td>
+            <td><?php echo htmlspecialchars((string) ($member['occupation_val'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Designation:</td>
+            <td>
+              <?php echo htmlspecialchars((string) ($member['occupation_designation'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?>
+            </td>
+          </tr>
+          <tr>
+            <td>Firm Name:</td>
+            <td><?php echo htmlspecialchars((string) ($member['occupation_firm'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Annual Income:</td>
+            <td style="font-weight:600;color:#059669;">₹
+              <?php echo number_format((float) ($member['annual_income'] ?? 0)); ?>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-dashboard-row" style="margin-top:24px;">
+      <!-- Personal Details -->
+      <div class="admin-glass-card">
+        <h2 style="margin-top:0;font-size:1rem;"><i class="fas fa-heart"></i> Interests & More</h2>
+        <table class="admin-table-info">
+          <tr>
+            <td>Hobbies:</td>
+            <td><?php echo htmlspecialchars((string) ($member['hobbies'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Languages:</td>
+            <td><?php echo htmlspecialchars((string) ($member['languages_known'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Weight:</td>
+            <td><?php echo (int)($member['weight_kg'] ?? 0); ?> KG</td>
+          </tr>
+          <tr>
+            <td>Height:</td>
+            <td><?php echo (int)($member['height_cm'] ?? 0); ?> CM</td>
+          </tr>
+          <tr>
+            <td>Handicapped:</td>
+            <td><?php echo htmlspecialchars((string) ($member['handicapped'] ?? 'No'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Widow/Divorce:</td>
+            <td><?php echo htmlspecialchars((string) ($member['widow_divorce'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Complexion:</td>
+            <td><?php echo htmlspecialchars((string) ($member['complexion'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Blood Group:</td>
+            <td><?php echo htmlspecialchars((string) ($member['blood_group'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Profile Created By:</td>
+            <td><?php echo htmlspecialchars((string) ($member['profile_created_by'] ?? 'Self'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+        </table>
       </div>
 
       <!-- Family Details -->
@@ -198,21 +293,35 @@ require __DIR__ . '/includes/head.php';
           </tr>
           <tr>
             <td>Father Income:</td>
-            <td><?php echo htmlspecialchars((string) ($member['father_income'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+            <td>₹ <?php echo number_format((float) ($member['father_income'] ?? 0)); ?></td>
+          </tr>
+          <tr>
+            <td>Father Occupation:</td>
+            <td><?php echo htmlspecialchars((string) ($member['father_occ'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
           </tr>
           <tr>
             <td>Mother:</td>
             <td><?php echo htmlspecialchars((string) ($member['mother_name'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
           </tr>
           <tr>
+            <td>Mother Mobile:</td>
+            <td><?php echo htmlspecialchars((string) ($member['mother_mobile'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Mother Income:</td>
+            <td>₹ <?php echo number_format((float) ($member['mother_income'] ?? 0)); ?></td>
+          </tr>
+          <tr>
+            <td>Mother Occupation:</td>
+            <td><?php echo htmlspecialchars((string) ($member['mother_occ'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
             <td>Brothers:</td>
-            <td><?php echo (int) ($member['bro_total'] ?? 0); ?> (Married:
-              <?php echo (int) ($member['bro_married'] ?? 0); ?>)</td>
+            <td><?php echo (int) ($member['bro_total'] ?? 0); ?> (Married: <?php echo (int) ($member['bro_married'] ?? 0); ?>, Unmarried: <?php echo (int) ($member['bro_unmarried'] ?? 0); ?>)</td>
           </tr>
           <tr>
             <td>Sisters:</td>
-            <td><?php echo (int) ($member['sis_total'] ?? 0); ?> (Married:
-              <?php echo (int) ($member['sis_married'] ?? 0); ?>)</td>
+            <td><?php echo (int) ($member['sis_total'] ?? 0); ?> (Married: <?php echo (int) ($member['sis_married'] ?? 0); ?>, Unmarried: <?php echo (int) ($member['sis_unmarried'] ?? 0); ?>)</td>
           </tr>
         </table>
       </div>

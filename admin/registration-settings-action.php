@@ -27,13 +27,15 @@ try {
     $db = sathi_db();
     $db->begin_transaction();
     
-    $stmt = $db->prepare("UPDATE registration_field_settings SET is_visible = ?, is_required = ? WHERE field_key = ?");
+    $stmt = $db->prepare("INSERT INTO registration_field_settings (field_key, is_visible, is_required) 
+                           VALUES (?, ?, ?) 
+                           ON DUPLICATE KEY UPDATE is_visible = VALUES(is_visible), is_required = VALUES(is_required)");
     
     foreach ($data['fields'] as $key => $cfg) {
         $vis = !empty($cfg['visible']) ? 1 : 0;
         $req = !empty($cfg['required']) ? 1 : 0;
         $keyStr = (string)$key;
-        $stmt->bind_param("iis", $vis, $req, $keyStr);
+        $stmt->bind_param("sii", $keyStr, $vis, $req);
         $stmt->execute();
     }
     

@@ -63,21 +63,21 @@ if ($sathiRegistrationStatus === 'pending') {
       </a>
 
       <?php if (empty($hideNavLinks)): ?>
-      <nav class="navbar-center" aria-label="Primary">
-        <ul class="nav-links" id="navLinks">
-          <?php $na = $navActive ?? ''; ?>
-          <li><a href="index.php" <?php echo $na === 'home' ? ' class="active"' : ''; ?>>Home</a></li>
-          <?php if ($sathiLoggedIn): ?>
-            <li><a href="matches.php" <?php echo $na === 'matches' ? ' class="active"' : ''; ?>>Matches</a></li>
-          <?php endif; ?>
-          <li><a href="about.php" <?php echo $na === 'about' ? ' class="active"' : ''; ?>>About Us</a></li>
-          <li><a href="membership.php" <?php echo $na === 'membership' ? ' class="active"' : ''; ?>>Membership</a></li>
-          <li><a href="success-stories.php" <?php echo $na === 'stories' ? ' class="active"' : ''; ?>>Success Stories</a>
-          </li>
-          <li><a href="blog.php" <?php echo $na === 'blog' ? ' class="active"' : ''; ?>>Blog</a></li>
-          <li><a href="contact.php" <?php echo $na === 'contact' ? ' class="active"' : ''; ?>>Contact</a></li>
-        </ul>
-      </nav>
+        <nav class="navbar-center" aria-label="Primary">
+          <ul class="nav-links" id="navLinks">
+            <?php $na = $navActive ?? ''; ?>
+            <li><a href="index.php" <?php echo $na === 'home' ? ' class="active"' : ''; ?>>Home</a></li>
+            <?php if ($sathiLoggedIn): ?>
+              <li><a href="matches.php" <?php echo $na === 'matches' ? ' class="active"' : ''; ?>>Matches</a></li>
+            <?php endif; ?>
+            <li><a href="about.php" <?php echo $na === 'about' ? ' class="active"' : ''; ?>>About Us</a></li>
+            <li><a href="membership.php" <?php echo $na === 'membership' ? ' class="active"' : ''; ?>>Membership</a></li>
+            <li><a href="success-stories.php" <?php echo $na === 'stories' ? ' class="active"' : ''; ?>>Success Stories</a>
+            </li>
+            <li><a href="blog.php" <?php echo $na === 'blog' ? ' class="active"' : ''; ?>>Blog</a></li>
+            <li><a href="contact.php" <?php echo $na === 'contact' ? ' class="active"' : ''; ?>>Contact</a></li>
+          </ul>
+        </nav>
       <?php endif; ?>
 
       <div class="nav-right">

@@ -64,6 +64,8 @@ $getVal = function ($name) {
     return $val;
 };
 
+require_once dirname(__DIR__) . '/includes/registration-config.php';
+
 // 5. Insert User with all new fields
 $stmt = $db->prepare(
     "INSERT INTO users (
@@ -72,8 +74,11 @@ $stmt = $db->prepare(
         native_country, native_state, native_city, native_locality, gotra, star, rasi, dosh, which_kundli,
         whatsapp, father_name, father_mobile, father_income, father_occ, mother_name, mother_mobile, mother_income,
         relative_details, bro_total, bro_married, bro_unmarried, sis_total, sis_married, sis_unmarried,
-        mother_tongue_val, marital_status_val, razorpay_payment_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        mother_tongue_val, marital_status_val, razorpay_payment_id,
+        permanent_address, current_address, education_id, occupation_id, occupation_firm, occupation_designation,
+        hobbies, annual_income, kundli_image, horoscope,
+        height, weight, height_cm, weight_kg, complexion, blood_group, profile_created_by, languages_known, handicapped, widow_divorce
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 );
 
 $kundliImg = upload_file($_FILES['kundli_image'] ?? null, 'kundli');
@@ -115,14 +120,167 @@ $su = (int) ($_POST['sis_unmarried'] ?? 0);
 $mTongue = $getVal('mother_tongue');
 $mStatus = $getVal('marital_status');
 
+// New mapped fields
+$masters = sathi_registration_masters();
+
+$eduValue = $getVal('education');
+$eduLabel = '';
+foreach ($masters['education'] as $opt) {
+    if ($opt['value'] === $eduValue) {
+        $eduLabel = $opt['label'];
+        break;
+    }
+}
+$eduId = 0;
+if ($eduLabel) {
+    $res = $db->query("SELECT id FROM educations WHERE name = '" . $db->real_escape_string($eduLabel) . "' LIMIT 1");
+    if ($row = $res->fetch_assoc())
+        $eduId = (int) $row['id'];
+}
+
+$occValue = $getVal('occupation');
+$occLabel = '';
+foreach ($masters['occupation'] as $opt) {
+    if ($opt['value'] === $occValue) {
+        $occLabel = $opt['label'];
+        break;
+    }
+}
+$occId = 0;
+if ($occLabel) {
+    $res = $db->query("SELECT id FROM occupations WHERE name = '" . $db->real_escape_string($occLabel) . "' LIMIT 1");
+    if ($row = $res->fetch_assoc())
+        $occId = (int) $row['id'];
+}
+
+$addrPerm = $_POST['addr_perm'] ?? '';
+$addrCurr = $_POST['addr_curr'] ?? '';
+$sameAsPerm = $_POST['same_as_perm'] ?? '';
+if ($sameAsPerm === 'on') {
+    $addrCurr = $addrPerm;
+}
+
+$firmName = $_POST['firm_name'] ?? '';
+$designation = $_POST['designation'] ?? '';
+
+$hobbiesArr = $_POST['hobby'] ?? [];
+$hobbies = is_array($hobbiesArr) ? implode(', ', $hobbiesArr) : '';
+
+$aiRaw = $getVal('annual_income');
+$annualIncome = 0;
+if ($aiRaw === '0-2')
+    $annualIncome = 200000;
+elseif ($aiRaw === '2-5')
+    $annualIncome = 500000;
+elseif ($aiRaw === '5-10')
+    $annualIncome = 1000000;
+elseif ($aiRaw === '10-20')
+    $annualIncome = 2000000;
+elseif ($aiRaw === '20+')
+    $annualIncome = 3000000;
+
+$height = $_POST['height'] ?? '';
+$weight = $_POST['weight'] ?? '';
+$complexion = $_POST['complexion'] ?? '';
+$bloodGroup = $_POST['blood_group'] ?? '';
+$createdBy = $_POST['profile_created_by'] ?? 'self';
+$languagesKnown = $_POST['languages_known'] ?? '';
+
+$widowDivorce = 'Not Applicable';
+if ($mStatus === 'divorced') {
+    $widowDivorce = 'Divorced';
+} elseif ($mStatus === 'widowed') {
+    $widowDivorce = 'Widowed';
+}
+
+$handicapped = $_POST['handicapped'] ?? 'No';
+
+// Parse height_cm and weight_kg
+$heightCm = 0;
+if (preg_match('/(\d+)\s*(cm|CM)/', $height, $matches)) {
+    $heightCm = (int) $matches[1];
+} else if (preg_match('/^(\d+)$/', trim($height), $matches)) {
+    $heightCm = (int) $matches[1];
+} else if (preg_match('/(\d+)\s*(?:ft|feet|\')\s*(?:(\d+)\s*(?:in|inches|"))?/', $height, $matches)) {
+    $ft = (int) $matches[1];
+    $in = isset($matches[2]) ? (int) $matches[2] : 0;
+    $heightCm = (int) round(($ft * 12 + $in) * 2.54);
+}
+
+$weightKg = 0;
+if (preg_match('/(\d+)\s*(kg|KG)/', $weight, $matches)) {
+    $weightKg = (int) $matches[1];
+} else if (preg_match('/^(\d+)$/', trim($weight), $matches)) {
+    $weightKg = (int) $matches[1];
+}
+
 $stmt->bind_param(
-    "ssssssssssssssssssssssssssssssssssssiiiiiisss",
-    $profileId, $firstName, $lastName, $email, $mobile, $passHash, $gender, $dob, $photo, $status,
-    $digamber, $religion, $whichTemple, $birthTime, $birthPlace, $birthCountry, $birthState, $birthCity,
-    $nativeCountry, $nativeState, $nativeCity, $nativeLocality, $gotra, $star, $rasi, $dosh, $whichKundli,
-    $whatsapp, $fName, $fMob, $fInc, $fOcc, $mName, $mMob, $mInc,
-    $relDet, $bt, $bm, $bu, $st, $sm, $su,
-    $mTongue, $mStatus, $razorpayId
+    "ssssssssssssssssssssssssssssssssssssiiiiiisssssiisssdssssiissssss",
+    $profileId,
+    $firstName,
+    $lastName,
+    $email,
+    $mobile,
+    $passHash,
+    $gender,
+    $dob,
+    $photo,
+    $status,
+    $digamber,
+    $religion,
+    $whichTemple,
+    $birthTime,
+    $birthPlace,
+    $birthCountry,
+    $birthState,
+    $birthCity,
+    $nativeCountry,
+    $nativeState,
+    $nativeCity,
+    $nativeLocality,
+    $gotra,
+    $star,
+    $rasi,
+    $dosh,
+    $whichKundli,
+    $whatsapp,
+    $fName,
+    $fMob,
+    $fInc,
+    $fOcc,
+    $mName,
+    $mMob,
+    $mInc,
+    $relDet,
+    $bt,
+    $bm,
+    $bu,
+    $st,
+    $sm,
+    $su,
+    $mTongue,
+    $mStatus,
+    $razorpayId,
+    $addrPerm,
+    $addrCurr,
+    $eduId,
+    $occId,
+    $firmName,
+    $designation,
+    $hobbies,
+    $annualIncome,
+    $kundliImg,
+    $horoscope,
+    $height,
+    $weight,
+    $heightCm,
+    $weightKg,
+    $complexion,
+    $bloodGroup,
+    $createdBy,
+    $languagesKnown,
+    $handicapped,
+    $widowDivorce
 );
 
 try {
@@ -130,12 +288,22 @@ try {
         $userId = $db->insert_id;
 
         // 6. Save Payment Record
+        $payment_enabled = sathi_site_setting('payment_enabled', '0') === '1';
+
         $payStmt = $db->prepare(
             "INSERT INTO payments (user_id, amount, payment_method, status, transaction_id) VALUES (?, ?, ?, ?, ?)"
         );
-        $amount = 999.00;
-        $payMethod = 'Razorpay';
-        $payStatus = 'paid';
+
+        if ($payment_enabled) {
+            $amount = 999.00;
+            $payMethod = 'Razorpay';
+            $payStatus = 'paid';
+        } else {
+            $amount = 0.00;
+            $payMethod = 'Free';
+            $payStatus = 'free';
+            $razorpayId = ''; // No ID for free
+        }
 
         $payStmt->bind_param("idsss", $userId, $amount, $payMethod, $payStatus, $razorpayId);
         $payStmt->execute();

@@ -152,8 +152,14 @@ $recentUsers = $recentUsers ?? [];
               <tr>
                 <td>
                   <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="../<?php echo htmlspecialchars($u['profile_photo'] ?: 'assets/images/default-avatar.png'); ?>"
-                      alt="" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                    <?php if (!empty($u['profile_photo'])): ?>
+                      <img src="../uploads/profiles/<?php echo htmlspecialchars($u['profile_photo']); ?>"
+                        alt="" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                    <?php else: ?>
+                      <div style="width:32px; height:32px; border-radius:50%; background:#ffe4e6; display:flex; align-items:center; justify-content:center; font-size:14px; color:#e11d48; font-weight:700;">
+                        <?php echo htmlspecialchars(strtoupper(substr($u['name'], 0, 1))); ?>
+                      </div>
+                    <?php endif; ?>
                     <div>
                       <div style="font-weight:600;"><?php echo htmlspecialchars($u['name']); ?></div>
                       <div style="font-size:0.75rem; color:#666;"><?php echo htmlspecialchars($u['profile_id']); ?></div>
