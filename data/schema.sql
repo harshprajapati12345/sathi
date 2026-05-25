@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `activity_logs`
 --
 
-CREATE TABLE `activity_logs` (
+CREATE TABLE IF NOT EXISTS `activity_logs` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_type` enum('admin','user') NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE `activity_logs` (
 -- Table structure for table `admins`
 --
 
-CREATE TABLE `admins` (
+CREATE TABLE IF NOT EXISTS `admins` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(150) NOT NULL,
   `email` varchar(150) NOT NULL,
@@ -69,7 +69,7 @@ INSERT INTO `admins` (`id`, `name`, `email`, `password_hash`, `role`, `status`, 
 -- Table structure for table `blogs`
 --
 
-CREATE TABLE `blogs` (
+CREATE TABLE IF NOT EXISTS `blogs` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE `blogs` (
 -- Table structure for table `castes`
 --
 
-CREATE TABLE `castes` (
+CREATE TABLE IF NOT EXISTS `castes` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `religion_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -114,7 +114,7 @@ INSERT INTO `castes` (`id`, `religion_id`, `name`, `status`, `created_at`) VALUE
 -- Table structure for table `cities`
 --
 
-CREATE TABLE `cities` (
+CREATE TABLE IF NOT EXISTS `cities` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `state_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -139,7 +139,7 @@ INSERT INTO `cities` (`id`, `state_id`, `name`, `status`, `created_at`) VALUES
 -- Table structure for table `countries`
 --
 
-CREATE TABLE `countries` (
+CREATE TABLE IF NOT EXISTS `countries` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `phone_code` varchar(10) DEFAULT NULL,
@@ -162,7 +162,7 @@ INSERT INTO `countries` (`id`, `name`, `phone_code`, `status`, `created_at`) VAL
 -- Table structure for table `educations`
 --
 
-CREATE TABLE `educations` (
+CREATE TABLE IF NOT EXISTS `educations` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `status` tinyint(1) DEFAULT 1,
@@ -193,7 +193,7 @@ INSERT INTO `educations` (`id`, `name`, `status`, `created_at`) VALUES
 -- Table structure for table `homepage_banners`
 --
 
-CREATE TABLE `homepage_banners` (
+CREATE TABLE IF NOT EXISTS `homepage_banners` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
   `subtitle` text DEFAULT NULL,
@@ -211,7 +211,7 @@ CREATE TABLE `homepage_banners` (
 -- Table structure for table `incomes`
 --
 
-CREATE TABLE `incomes` (
+CREATE TABLE IF NOT EXISTS `incomes` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `status` tinyint(1) DEFAULT 1,
@@ -236,7 +236,7 @@ INSERT INTO `incomes` (`id`, `name`, `status`, `created_at`) VALUES
 -- Table structure for table `marital_statuses`
 --
 
-CREATE TABLE `marital_statuses` (
+CREATE TABLE IF NOT EXISTS `marital_statuses` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `status` tinyint(1) DEFAULT 1,
@@ -259,7 +259,7 @@ INSERT INTO `marital_statuses` (`id`, `name`, `status`, `created_at`) VALUES
 -- Table structure for table `membership_plans`
 --
 
-CREATE TABLE `membership_plans` (
+CREATE TABLE IF NOT EXISTS `membership_plans` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `price` decimal(10,2) NOT NULL,
@@ -285,7 +285,7 @@ INSERT INTO `membership_plans` (`id`, `name`, `price`, `duration_days`, `profile
 -- Table structure for table `mother_tongues`
 --
 
-CREATE TABLE `mother_tongues` (
+CREATE TABLE IF NOT EXISTS `mother_tongues` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `status` tinyint(1) DEFAULT 1,
@@ -313,7 +313,7 @@ INSERT INTO `mother_tongues` (`id`, `name`, `status`, `created_at`) VALUES
 -- Table structure for table `notifications`
 --
 
-CREATE TABLE `notifications` (
+CREATE TABLE IF NOT EXISTS `notifications` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -329,7 +329,7 @@ CREATE TABLE `notifications` (
 -- Table structure for table `occupations`
 --
 
-CREATE TABLE `occupations` (
+CREATE TABLE IF NOT EXISTS `occupations` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `status` tinyint(1) DEFAULT 1,
@@ -357,7 +357,7 @@ INSERT INTO `occupations` (`id`, `name`, `status`, `created_at`) VALUES
 -- Table structure for table `payments`
 --
 
-CREATE TABLE `payments` (
+CREATE TABLE IF NOT EXISTS `payments` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `membership_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -378,7 +378,7 @@ CREATE TABLE `payments` (
 -- Table structure for table `profile_interests`
 --
 
-CREATE TABLE `profile_interests` (
+CREATE TABLE IF NOT EXISTS `profile_interests` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `from_user_id` bigint(20) UNSIGNED NOT NULL,
   `to_user_id` bigint(20) UNSIGNED NOT NULL,
@@ -394,7 +394,7 @@ CREATE TABLE `profile_interests` (
 -- Table structure for table `registration_field_settings`
 --
 
-CREATE TABLE `registration_field_settings` (
+CREATE TABLE IF NOT EXISTS `registration_field_settings` (
   `field_key` varchar(100) NOT NULL,
   `is_visible` tinyint(1) DEFAULT 1,
   `is_required` tinyint(1) DEFAULT 0,
@@ -458,7 +458,7 @@ INSERT INTO `registration_field_settings` (`field_key`, `is_visible`, `is_requir
 -- Table structure for table `religions`
 --
 
-CREATE TABLE `religions` (
+CREATE TABLE IF NOT EXISTS `religions` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `status` tinyint(1) DEFAULT 1,
@@ -485,7 +485,7 @@ INSERT INTO `religions` (`id`, `name`, `status`, `sort_order`, `created_at`) VAL
 -- Table structure for table `settings`
 --
 
-CREATE TABLE `settings` (
+CREATE TABLE IF NOT EXISTS `settings` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `setting_key` varchar(150) NOT NULL,
   `setting_value` longtext DEFAULT NULL,
@@ -500,7 +500,7 @@ CREATE TABLE `settings` (
 -- Table structure for table `site_settings`
 --
 
-CREATE TABLE `site_settings` (
+CREATE TABLE IF NOT EXISTS `site_settings` (
   `setting_key` varchar(100) NOT NULL,
   `setting_value` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -526,7 +526,7 @@ INSERT INTO `site_settings` (`setting_key`, `setting_value`, `created_at`, `upda
 -- Table structure for table `states`
 --
 
-CREATE TABLE `states` (
+CREATE TABLE IF NOT EXISTS `states` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `country_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -551,7 +551,7 @@ INSERT INTO `states` (`id`, `country_id`, `name`, `status`, `created_at`) VALUES
 -- Table structure for table `success_stories`
 --
 
-CREATE TABLE `success_stories` (
+CREATE TABLE IF NOT EXISTS `success_stories` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `groom_name` varchar(100) NOT NULL,
   `bride_name` varchar(100) NOT NULL,
@@ -568,7 +568,7 @@ CREATE TABLE `success_stories` (
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `profile_id` varchar(30) NOT NULL,
   `first_name` varchar(100) NOT NULL,
@@ -622,7 +622,7 @@ CREATE TABLE `users` (
 -- Table structure for table `user_memberships`
 --
 
-CREATE TABLE `user_memberships` (
+CREATE TABLE IF NOT EXISTS `user_memberships` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `membership_plan_id` bigint(20) UNSIGNED NOT NULL,
@@ -640,7 +640,7 @@ CREATE TABLE `user_memberships` (
 -- Table structure for table `user_photos`
 --
 
-CREATE TABLE `user_photos` (
+CREATE TABLE IF NOT EXISTS `user_photos` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `photo` varchar(255) NOT NULL,
@@ -657,7 +657,7 @@ CREATE TABLE `user_photos` (
 -- Table structure for table `user_shortlists`
 --
 
-CREATE TABLE `user_shortlists` (
+CREATE TABLE IF NOT EXISTS `user_shortlists` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `shortlisted_user_id` bigint(20) UNSIGNED NOT NULL,
