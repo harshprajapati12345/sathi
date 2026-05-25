@@ -8,7 +8,13 @@ $pageTitle = 'View Member';
 $adminCurrent = 'members-all';
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-$member = $id > 0 ? sathi_user_repo_find_by_id($id) : null;
+$source = isset($_GET['source']) ? $_GET['source'] : '';
+
+if ($source === 'csv') {
+    $member = $id > 0 ? sathi_candidate_find_by_id($id) : null;
+} else {
+    $member = $id > 0 ? sathi_user_repo_find_by_id($id) : null;
+}
 
 require __DIR__ . '/includes/head.php';
 ?>

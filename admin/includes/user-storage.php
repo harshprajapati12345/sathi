@@ -23,36 +23,36 @@ function sathi_user_repo_find_by_id($id)
     $id = (int) $id;
 
     $query = "SELECT u.*, 
-                COALESCE(r.name, u.religion) as religion,
-                COALESCE(mt.name, u.mother_tongue_val) as mother_tongue_val,
-                COALESCE(ms.name, u.marital_status_val) as marital_status_val,
+                r.name as religion,
+                mt.name as mother_tongue_val,
+                ms.name as marital_status_val,
                 e.name as education_val,
                 occ.name as occupation_val,
-                COALESCE(fd.father_name, u.father_name) as father_name, 
-                COALESCE(fd.father_mobile, u.father_mobile_number, u.father_mobile) as father_mobile, 
-                COALESCE(fd.father_income, u.father_annual_income, u.father_income) as father_income, 
-                COALESCE(fd.father_occupation, u.father_occupation, u.father_occ) as father_occ,
-                COALESCE(fd.mother_name, u.mother_name) as mother_name, 
-                COALESCE(fd.mother_mobile, u.mother_mobile_number, u.mother_mobile) as mother_mobile, 
-                COALESCE(fd.mother_income, u.mother_annual_income, u.mother_income) as mother_income, 
-                COALESCE(fd.mother_occupation, u.mother_occupation) as mother_occ,
-                COALESCE(fd.brothers, u.bro_total, u.brothers) as bro_total, 
-                COALESCE(fd.brothers_married, u.bro_married, u.brothers_married_count) as bro_married, 
-                COALESCE(fd.brothers_unmarried, u.bro_unmarried, u.brothers_unmarried_count) as bro_unmarried,
-                COALESCE(fd.sisters, u.sis_total, u.sisters) as sis_total, 
-                COALESCE(fd.sisters_married, u.sis_married, u.sisters_married_count) as sis_married, 
-                COALESCE(fd.sisters_unmarried, u.sis_unmarried, u.sisters_unmarried_count) as sis_unmarried,
-                COALESCE(wd.occupation_firm, u.occupation_firm) as occupation_firm, 
-                COALESCE(wd.occupation_designation, u.occupation_designation) as occupation_designation, 
-                COALESCE(wd.annual_income, u.annual_income) as annual_income,
-                COALESCE(ad.permanent_address, u.permanent_address) as permanent_address, 
-                COALESCE(ad.current_address, u.current_address) as current_address,
-                COALESCE(pa.height_cm, u.height_cm) as height_cm, 
-                COALESCE(pa.weight_kg, u.weight_kg) as weight_kg, 
-                COALESCE(pa.gotra, u.gotra) as gotra, 
-                COALESCE(pa.horoscope, u.horoscope) as horoscope, 
-                COALESCE(pa.handicapped, u.handicapped) as handicapped,
-                COALESCE(pi.payment_upi_id, u.razorpay_payment_id) as razorpay_payment_id,
+                fd.father_name as father_name, 
+                fd.father_mobile as father_mobile, 
+                fd.father_income as father_income, 
+                fd.father_occupation as father_occ,
+                fd.mother_name as mother_name, 
+                fd.mother_mobile as mother_mobile, 
+                fd.mother_income as mother_income, 
+                fd.mother_occupation as mother_occ,
+                fd.brothers as bro_total, 
+                fd.brothers_married as bro_married, 
+                fd.brothers_unmarried as bro_unmarried,
+                fd.sisters as sis_total, 
+                fd.sisters_married as sis_married, 
+                fd.sisters_unmarried as sis_unmarried,
+                wd.occupation_firm as occupation_firm, 
+                wd.occupation_designation as occupation_designation, 
+                wd.annual_income as annual_income,
+                ad.permanent_address as permanent_address, 
+                ad.current_address as current_address,
+                pa.height_cm as height_cm, 
+                pa.weight_kg as weight_kg, 
+                pa.gotra as gotra, 
+                pa.horoscope as horoscope, 
+                               pa.handicapped as handicapped,
+                pi.transaction_id as razorpay_payment_id,
                 u.profile_photo as profile_photo_url
               FROM users u
               LEFT JOIN religions r ON u.religion_id = r.id
@@ -288,25 +288,23 @@ function sathi_candidates_list_all($limit = 300)
     $db = sathi_db();
     $limit = (int) $limit;
     $result = $db->query("SELECT 
-        u.id, 
-        CONCAT(u.first_name, ' ', IFNULL(u.last_name, '')) as candidate_full_name,
-        u.email as email_address,
-        u.gender,
-        u.dob as birth_date,
-        e.name as higher_education,
-        u.annual_income as candidate_annual_income,
-        occ.name as candidate_occupation,
-        u.occupation_designation,
-        u.permanent_address as native,
-        u.birth_place,
-        u.gotra,
-        u.horoscope,
-        u.mobile as mobile_number,
-        u.candidate_photo
-    FROM users u
-    LEFT JOIN educations e ON u.education_id = e.id
-    LEFT JOIN occupations occ ON u.occupation_id = occ.id
-    ORDER BY u.id ASC 
+        id, 
+        candidate_full_name,
+        email_address,
+        gender,
+        birth_date,
+        higher_education,
+        candidate_annual_income,
+        candidate_occupation,
+        occupation_designation,
+        native,
+        birth_place,
+        gotra,
+        horoscope,
+        mobile_number,
+        candidate_photo
+    FROM candidates
+    ORDER BY id ASC 
     LIMIT $limit");
 
     $rows = [];
@@ -316,6 +314,85 @@ function sathi_candidates_list_all($limit = 300)
         }
     }
     return $rows;
+}
+
+/**
+ * Find candidate by ID from the CSV-imported table
+ */
+function sathi_candidate_find_by_id($id)
+{
+    $db = sathi_db();
+    $id = (int) $id;
+    $stmt = $db->prepare("SELECT * FROM candidates WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    if (!$row) {
+        return null;
+    }
+
+    // Map candidate fields to match standard user fields expected by member-view.php
+    return [
+        'id' => $row['id'],
+        'profile_id' => 'CSV' . str_pad((string)$row['id'], 6, '0', STR_PAD_LEFT),
+        'first_name' => $row['candidate_full_name'],
+        'last_name' => '',
+        'name' => $row['candidate_full_name'],
+        'email' => $row['email_address'] ?: ($row['email'] ?? 'N/A'),
+        'mobile' => $row['mobile_number'],
+        'whatsapp' => $row['mobile_number'],
+        'gender' => $row['gender'],
+        'dob' => $row['birth_date'],
+        'birth_time' => $row['birth_time'] ?? 'N/A',
+        'birth_place' => $row['birth_place'],
+        'native_place' => $row['native'],
+        'religion' => 'Jain',
+        'mother_tongue_val' => $row['language_known'] ?? 'N/A',
+        'marital_status_val' => $row['widow_divorce'] ?? 'N/A',
+        'which_temple' => 'N/A',
+        'gotra' => $row['gotra'],
+        'horoscope' => $row['horoscope'],
+        'star' => 'N/A',
+        'rasi' => 'N/A',
+        'dosh' => 'N/A',
+        'permanent_address' => $row['permanent_address'],
+        'current_address' => $row['candidate_current_address'] ?? $row['permanent_address'],
+        'education_val' => $row['higher_education'],
+        'occupation_val' => $row['candidate_occupation'],
+        'occupation_designation' => $row['occupation_designation'],
+        'occupation_firm' => $row['occupation_firm'] ?? 'N/A',
+        'annual_income' => $row['candidate_annual_income'],
+        'hobbies' => $row['hobbies'],
+        'languages_known' => $row['language_known'],
+        'weight_kg' => (int)($row['weight'] ?? 0),
+        'height_cm' => (int)($row['height'] ?? 0),
+        'handicapped' => $row['handicapped_physical_deficiency'] ?? 'No',
+        'widow_divorce' => $row['widow_divorce'] ?? 'N/A',
+        'complexion' => 'N/A',
+        'blood_group' => 'N/A',
+        'profile_created_by' => 'Self',
+        'father_name' => $row['father_name'] ?? 'N/A',
+        'father_mobile' => $row['father_mobile_number'] ?? 'N/A',
+        'father_income' => $row['father_annual_income'] ?? 0,
+        'father_occ' => $row['father_occupation'] ?? 'N/A',
+        'mother_name' => $row['mother_name'] ?? 'N/A',
+        'mother_mobile' => $row['mother_mobile_number'] ?? 'N/A',
+        'mother_income' => $row['mother_annual_income'] ?? 0,
+        'mother_occ' => $row['mother_occupation'] ?? 'N/A',
+        'bro_total' => (int)($row['brothers'] ?? 0),
+        'bro_married' => (int)($row['brothers_married_count'] ?? 0),
+        'bro_unmarried' => (int)($row['brothers_unmarried_count'] ?? 0),
+        'sis_total' => (int)($row['sisters'] ?? 0),
+        'sis_married' => (int)($row['sisters_married_count'] ?? 0),
+        'sis_unmarried' => (int)($row['sisters_unmarried_count'] ?? 0),
+        'about_me' => 'N/A',
+        'relative_details' => 'N/A',
+        'profile_photo_url' => $row['candidate_photo'],
+        'status' => 'approved',
+        'membership_status' => 'free',
+        'razorpay_payment_id' => 'N/A',
+        'created_at' => $row['created_at'] ?? ($row['timestamp'] ?? 'N/A')
+    ];
 }
 
 /** Alias for simpler calls */
