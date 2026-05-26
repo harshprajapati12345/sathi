@@ -44,10 +44,19 @@ if ($sathiRegistrationStatus === 'pending') {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
   <?php if (!empty($extraCss ?? '')): ?>
-    <link rel="stylesheet" href="<?php echo htmlspecialchars($extraCss, ENT_QUOTES, 'UTF-8'); ?>">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($extraCss, ENT_QUOTES, 'UTF-8'); ?>?v=<?php echo time(); ?>">
   <?php endif; ?>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body<?php echo !empty($bodyClass ?? '') ? ' class="' . htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
+
+  <?php if (!empty($hideNavAndFooter)): ?>
+  <style>
+    #navbar, #contact { display: none !important; }
+    body { padding-top: 0 !important; }
+  </style>
+  <?php endif; ?>
 
   <!-- ═══ NAVBAR ═══ -->
   <header class="navbar" id="navbar">
@@ -76,17 +85,22 @@ if ($sathiRegistrationStatus === 'pending') {
             </li>
             <li><a href="blog.php" <?php echo $na === 'blog' ? ' class="active"' : ''; ?>>Blog</a></li>
             <li><a href="contact.php" <?php echo $na === 'contact' ? ' class="active"' : ''; ?>>Contact</a></li>
+            <li class="mobile-auth-links">
+              <?php if ($sathiLoggedIn): ?>
+                <a href="profile.php">My Profile</a>
+                <a href="logout.php" style="color: var(--pink); font-weight: 600;">Logout</a>
+              <?php else: ?>
+                <a href="login.php">Login</a>
+                <a href="register.php" style="color: var(--pink); font-weight: 600;">Sign Up</a>
+              <?php endif; ?>
+            </li>
           </ul>
         </nav>
       <?php endif; ?>
 
       <div class="nav-right">
         <?php if ($sathiLoggedIn): ?>
-          <span class="nav-user-name"
-            title="Signed in"><?php echo htmlspecialchars($navUserLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-          <?php if ($navStatusLabel !== ''): ?>
-            <span class="nav-user-status"><?php echo htmlspecialchars($navStatusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-          <?php endif; ?>
+          <a href="profile.php" class="nav-user-name" style="text-decoration:none;" title="My Profile">My Profile</a>
           <a href="logout.php" class="btn-login" style="margin-left:8px;text-decoration:none;">Logout</a>
         <?php else: ?>
           <button type="button" class="btn-login" onclick="location.href='login.php'">Login</button>

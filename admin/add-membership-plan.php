@@ -6,9 +6,9 @@ require __DIR__ . '/includes/bootstrap.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim((string) ($_POST['plan_name'] ?? ''));
     $price = (float) ($_POST['price'] ?? 0);
-    $days = (int) ($_POST['duration_days'] ?? 0);
+    $days = 365; // Fixed for yearly only
     $feat = trim((string) ($_POST['features'] ?? ''));
-    if ($name !== '' && $price > 0 && $days > 0) {
+    if ($name !== '' && $price >= 0) {
         $pdo = sathi_db();
         $pv = 100;
         $cv = 20;
@@ -45,7 +45,8 @@ require __DIR__ . '/includes/head.php';
       </div>
       <div class="admin-form-field">
         <span>Duration (days)</span>
-        <input type="number" name="duration_days" min="1" required placeholder="365">
+        <input type="number" name="duration_days" value="365" readonly style="background: #f1f5f9; cursor: not-allowed; color: #64748b;">
+        <span style="font-size: 11px; color: #6b7280; font-weight: normal; margin-top: 4px;">Plans are fixed for yearly only.</span>
       </div>
       <div class="admin-form-field" style="grid-column:1/-1;">
         <span>Features (notes)</span>

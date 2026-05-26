@@ -89,36 +89,43 @@ require __DIR__ . '/includes/head.php';
             <button onclick="updateMemberStatus(<?php echo (int) $member['id']; ?>, 'rejected')" class="admin-btn"
               style="background:#dc3545;border:none;">Reject member</button>
           <?php endif; ?>
-          <a href="member-edit.php?id=<?php echo (int) $member['id']; ?>" class="admin-btn admin-btn-primary">Edit
-            profile</a>
           <a href="members.php" class="admin-btn admin-btn-secondary">Back</a>
         </div>
 
         <script>
           function updateMemberStatus(id, status) {
-            if (!confirm('Are you sure you want to set this member to ' + status + '?')) return;
+            Swal.fire({
+              title: 'Are you sure?',
+              text: 'Are you sure you want to set this member to ' + status + '?',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#e94e77',
+              cancelButtonColor: '#6b7280',
+              confirmButtonText: 'Yes, update it!'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                const fd = new FormData();
+                fd.append('id', id);
+                fd.append('status', status);
 
-            const fd = new FormData();
-            fd.append('id', id);
-            fd.append('status', status);
-
-            fetch('api/update-member-status.php', {
-              method: 'POST',
-              body: fd
-            })
-              .then(r => r.json())
-              .then(data => {
-                if (data.ok) {
-                  alert('Status updated successfully');
-                  location.reload();
-                } else {
-                  alert('Error: ' + data.error);
-                }
-              })
-              .catch(err => {
-                console.error(err);
-                alert('Connection error');
-              });
+                fetch('api/update-member-status.php', {
+                  method: 'POST',
+                  body: fd
+                })
+                  .then(r => r.json())
+                  .then(data => {
+                    if (data.ok) {
+                      Swal.fire({icon: 'success', title: 'Success', text: 'Status updated successfully', confirmButtonColor: '#e94e77'}).then(() => location.reload());
+                    } else {
+                      Swal.fire({icon: 'error', text: 'Error: ' + data.error, confirmButtonColor: '#e94e77'});
+                    }
+                  })
+                  .catch(err => {
+                    console.error(err);
+                    Swal.fire({icon: 'error', text: 'Connection error', confirmButtonColor: '#e94e77'});
+                  });
+              }
+            });
           }
         </script>
       </div>
@@ -127,11 +134,23 @@ require __DIR__ . '/includes/head.php';
     <div class="admin-dashboard-row" style="margin-top:24px;">
       <!-- Personal & Religion -->
       <div class="admin-glass-card">
-        <h2 style="margin-top:0;font-size:1rem;"><i class="fas fa-pray"></i> Religious & Personal</h2>
+        <h2 style="margin-top:0;font-size:1rem;"><i class="fas fa-pray"></i> Religious, Community & Personal</h2>
         <table class="admin-table-info">
           <tr>
             <td>Digamber Jain:</td>
             <td><?php echo strtoupper((string) ($member['digamber_jain'] ?? 'no')); ?></td>
+          </tr>
+          <tr>
+            <td>Mandir:</td>
+            <td><?php echo htmlspecialchars((string) ($member['mandir_name'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Subcast:</td>
+            <td><?php echo htmlspecialchars((string) ($member['subcast_name'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Gotra:</td>
+            <td><?php echo htmlspecialchars((string) ($member['gotra_name'] ?? $member['gotra'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
           </tr>
           <tr>
             <td>Religion:</td>
@@ -148,12 +167,45 @@ require __DIR__ . '/includes/head.php';
             </td>
           </tr>
           <tr>
-            <td>Which Temple:</td>
+            <td>Which Temple (Old):</td>
             <td><?php echo htmlspecialchars((string) ($member['which_temple'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
           </tr>
+        </table>
+      </div>
+
+      <!-- Verification References -->
+      <div class="admin-glass-card">
+        <h2 style="margin-top:0;font-size:1rem;"><i class="fas fa-user-check"></i> Verification References</h2>
+        <table class="admin-table-info">
           <tr>
-            <td>Gotra:</td>
-            <td><?php echo htmlspecialchars((string) ($member['gotra'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+            <td colspan="2" style="color:var(--admin-brand); font-weight:bold; border-bottom:none;">Reference Person 1</td>
+          </tr>
+          <tr>
+            <td>Name:</td>
+            <td><?php echo htmlspecialchars((string) ($member['reference_person_1_name'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Mobile:</td>
+            <td><?php echo htmlspecialchars((string) ($member['reference_person_1_mobile'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Relation:</td>
+            <td><?php echo htmlspecialchars((string) ($member['reference_person_1_relation'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td colspan="2" style="color:var(--admin-brand); font-weight:bold; border-bottom:none; padding-top:15px;">Reference Person 2</td>
+          </tr>
+          <tr>
+            <td>Name:</td>
+            <td><?php echo htmlspecialchars((string) ($member['reference_person_2_name'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Mobile:</td>
+            <td><?php echo htmlspecialchars((string) ($member['reference_person_2_mobile'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
+          </tr>
+          <tr>
+            <td>Relation:</td>
+            <td><?php echo htmlspecialchars((string) ($member['reference_person_2_relation'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?></td>
           </tr>
         </table>
       </div>
@@ -233,8 +285,8 @@ require __DIR__ . '/includes/head.php';
           </tr>
           <tr>
             <td>Annual Income:</td>
-            <td style="font-weight:600;color:#059669;">₹
-              <?php echo number_format((float) ($member['annual_income'] ?? 0)); ?>
+            <td style="font-weight:600;color:#059669;">
+              <?php echo htmlspecialchars((string)($member['annual_income'] ?? 'N/A')); ?>
             </td>
           </tr>
         </table>

@@ -666,6 +666,23 @@ CREATE TABLE IF NOT EXISTS `user_shortlists` (
   UNIQUE KEY `unique_shortlist` (`user_id`,`shortlisted_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `advertisements`
+--
+
+CREATE TABLE IF NOT EXISTS `advertisements` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `position` enum('top','bottom','left','right') NOT NULL,
+  `status` tinyint(1) DEFAULT 1,
+  `link` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

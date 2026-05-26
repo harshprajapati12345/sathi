@@ -42,8 +42,9 @@ function sathi_require_approval() {
         return;
     }
 
-    // 3. If logged in but on index.php -> Check approval
-    if ($isLoggedIn && $currentFile === 'index.php') {
+    // 3. If logged in, restrict access to all customer pages unless approved
+    $allowedWhenPending = ['pending.php', 'reject.php', 'logout.php', 'complete-registration.php', 'api.php'];
+    if ($isLoggedIn && !in_array($currentFile, $allowedWhenPending)) {
         if ($status === 'pending') {
             header("Location: pending.php");
             exit();

@@ -50,11 +50,13 @@ if (!empty($dob)) {
     }
 }
 
-$img = !empty($member['profile_photo']) && file_exists(__DIR__ . '/' . $member['profile_photo'])
-    ? $member['profile_photo']
-    : ($member['gender'] === 'female'
-        ? 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?q=80&w=1000'
-        : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000');
+$img = !empty($member['profile_photo']) 
+    ? (strpos($member['profile_photo'], 'http') === 0 
+        ? $member['profile_photo'] 
+        : (file_exists(__DIR__ . '/uploads/profiles/' . $member['profile_photo']) 
+            ? 'uploads/profiles/' . $member['profile_photo'] 
+            : 'https://ui-avatars.com/api/?name=' . urlencode($member['name'] ?? 'User') . '&background=f45c93&color=fff&size=500'))
+    : 'https://ui-avatars.com/api/?name=' . urlencode($member['name'] ?? 'User') . '&background=f45c93&color=fff&size=500';
 
 // All fields
 $name = htmlspecialchars((string) $member['name'], ENT_QUOTES, 'UTF-8');

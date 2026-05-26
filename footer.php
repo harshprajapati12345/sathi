@@ -185,3 +185,106 @@
     modal.classList.remove('active');
   }
 </script>
+
+<!-- Generic Form Autosave -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Apply to forms except the registration wizard which has its own localStorage logic
+    const forms = document.querySelectorAll('form:not(#regWizard):not([data-no-autosave])');
+    forms.forEach(form => {
+        const formId = form.id || form.name || window.location.pathname.replace(/[^a-z0-9]/gi, '_');
+        if (!formId) return;
+        const storageKey = 'sathi_autosave_' + formId;
+
+        // Load data
+        try {
+            const raw = sessionStorage.getItem(storageKey);
+            if (raw) {
+                const data = JSON.parse(raw);
+                Object.entries(data).forEach(([key, values]) => {
+                    const el = form.elements[key];
+                    if (!el) return;
+
+                    if (el instanceof RadioNodeList || (el.length && !el.tagName)) {
+                        const valArray = Array.isArray(values) ? values : [values];
+                        Array.from(el).forEach(input => {
+                            if (input.type === 'checkbox' || input.type === 'radio') {
+                                input.checked = valArray.includes(input.value);
+                            }
+                        });
+                    } else {
+                        if (el.type === 'checkbox' || el.type === 'radio') {
+                            el.checked = (el.value === values || (typeof values === 'boolean' && String(values) === 'true'));
+                        } else if (el.type !== 'file' && el.type !== 'password' && el.type !== 'hidden') {
+                            el.value = values;
+                        }
+                    }
+                    
+                    // Dispatch change event to trigger any dependent logic
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            }
+        } catch (e) {
+            console.error('Form autosave load error:', e);
+        }
+
+        // Save data on change
+        let timeout;
+        const save = () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                const fd = new FormData(form);
+                const data = {};
+                for (let [key, val] of fd.entries()) {
+                    if (key.includes('password') || val instanceof File || key === 'csrf_token') continue;
+                    if (data[key] !== undefined) {
+                        if (!Array.isArray(data[key])) data[key] = [data[key]];
+                        data[key].push(val);
+                    } else {
+                        data[key] = val;
+                    }
+                }
+                sessionStorage.setItem(storageKey, JSON.stringify(data));
+            }, 300);
+        };
+
+        form.addEventListener('input', save);
+        form.addEventListener('change', save);
+    });
+});
+</script>
+
+<!-- Global Password Eye Toggle -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[type="password"]').forEach(input => {
+        input.classList.add('no-caps');
+        const parent = input.parentElement;
+        if (window.getComputedStyle(parent).position === 'static') {
+            parent.style.position = 'relative';
+        }
+        
+        input.style.paddingRight = '45px';
+        
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        btn.style.cssText = 'position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #999; cursor: pointer; padding: 5px; z-index: 10; outline: none; font-size: 16px; display: flex; align-items: center; justify-content: center;';
+        
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fas fa-eye"></i>';
+                btn.style.color = '#e94e77';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                btn.style.color = '#999';
+            }
+        });
+        
+        parent.appendChild(btn);
+    });
+});
+</script>

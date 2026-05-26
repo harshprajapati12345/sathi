@@ -283,7 +283,7 @@ while (($row = fgetcsv($file)) !== FALSE) {
     }
 
     // J. user_memberships (Add a free membership record)
-    $stmtMem = $db->prepare("INSERT INTO user_memberships (user_id, membership_plan_id, amount_paid, payment_status, start_date, end_date) VALUES (?, 1, 0, 'paid', NOW(), DATE_ADD(NOW(), INTERVAL 180 DAY))");
+    $stmtMem = $db->prepare("INSERT INTO user_memberships (user_id, membership_plan_id, amount_paid, payment_status, start_date, end_date) VALUES (?, 1, 0, 'paid', NOW(), DATE_ADD(NOW(), INTERVAL 1 YEAR))");
     $stmtMem->bind_param("i", $userId);
     $stmtMem->execute();
 

@@ -52,7 +52,28 @@ if (empty($dynamicTestimonials)) {
 // Fetch Blogs
 $blogsQuery = $db->query("SELECT title, slug, image, content, created_at FROM blogs WHERE status = 'published' ORDER BY id DESC LIMIT 3");
 $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
+
+// Fetch Advertisements
+$adsQuery = $db->query("SELECT title, image, position, link FROM advertisements WHERE status = 1 ORDER BY id DESC");
+$ads = ['top' => [], 'bottom' => [], 'left' => [], 'right' => []];
+if ($adsQuery) {
+    while ($adRow = $adsQuery->fetch_assoc()) {
+        $ads[$adRow['position']][] = $adRow;
+    }
+}
 ?>
+
+<?php if (!empty($ads['top'])): ?>
+<div class="top-ads-container" style="width:100%; text-align:center; padding: 20px 15px; background: #fff; border-bottom: 1px solid #eee; z-index: 100; position: relative;">
+    <div class="container">
+        <?php foreach($ads['top'] as $ad): ?>
+            <a href="<?php echo htmlspecialchars($ad['link'] ?? '#'); ?>" target="_blank" style="display:inline-block; width: 100%; max-width: 1100px; margin: 10px auto;">
+                <img src="<?php echo htmlspecialchars($ad['image']); ?>" alt="<?php echo htmlspecialchars($ad['title']); ?>" style="width: 100%; height: auto; max-height: 400px; object-fit: contain; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            </a>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- ═══ HERO SECTION ═══ -->
 <section class="hero hero--fullbleed" id="home">
@@ -66,12 +87,13 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
             <p class="hero-sub"><?php echo $heroSub; ?></p>
 
             <!-- Search/Filter Bar -->
-            <div class="search-bar">
+            <form action="matches.php" method="GET" class="search-bar">
+                <input type="hidden" name="gender" id="genderInput" value="female">
                 <div class="search-group">
                     <label>I am looking for</label>
                     <div class="toggle-pills">
-                        <button type="button" class="active" onclick="togglePill(this)">Bride</button>
-                        <button type="button" onclick="togglePill(this)">Groom</button>
+                        <button type="button" class="active" onclick="togglePill(this, 'female')">Bride</button>
+                        <button type="button" onclick="togglePill(this, 'male')">Groom</button>
                     </div>
                 </div>
                 <div class="search-group search-group--age">
@@ -85,31 +107,21 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
                     </div>
                     <span class="range-val" id="ageVal">21 – 30 Years</span>
                 </div>
-                <div class="search-group">
-                    <label>Religion</label>
-                    <select aria-label="Religion">
-                        <option>Any</option>
-                        <option>Hindu</option>
-                        <option>Muslim</option>
-                        <option>Christian</option>
-                        <option>Sikh</option>
-                        <option>Jain</option>
-                    </select>
-                </div>
+
                 <div class="search-group">
                     <label>City</label>
-                    <select aria-label="City">
-                        <option>All Cities</option>
-                        <option>Mumbai</option>
-                        <option>Delhi</option>
-                        <option>Bangalore</option>
-                        <option>Pune</option>
-                        <option>Hyderabad</option>
+                    <select name="location" aria-label="City">
+                        <option value="">All Cities</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Hyderabad">Hyderabad</option>
                     </select>
                 </div>
-                <button type="button" class="btn-cta" onclick="location.href='matches.php'"><i
+                <button type="submit" class="btn-cta"><i
                         class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Show Matches</span></button>
-            </div>
+            </form>
         </div>
     </div>
 </section>
@@ -401,11 +413,13 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
                     'mother_tongue' => $r['mother_tongue_val'] ?? $getLabel('mother_tongue', $r['mother_tongue_id'] ?? ''),
                     'marital_status' => $r['marital_status_val'] ?? $getLabel('marital_status', $r['marital_status_id'] ?? ''),
                     'which_temple' => $r['which_temple'] ?? 'N/A',
-                    'img' => !empty($r['profile_photo']) && file_exists(__DIR__ . '/' . $r['profile_photo'])
-                        ? $r['profile_photo']
-                        : ($r['gender'] === 'female'
-                            ? 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?q=80&w=1000'
-                            : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000'),
+                    'img' => !empty($r['profile_photo']) 
+                        ? (strpos($r['profile_photo'], 'http') === 0 
+                            ? $r['profile_photo'] 
+                            : (file_exists(__DIR__ . '/uploads/profiles/' . $r['profile_photo']) 
+                                ? 'uploads/profiles/' . $r['profile_photo'] 
+                                : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=f45c93&color=fff&size=500'))
+                        : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=f45c93&color=fff&size=500',
                     'digamber' => strtoupper($r['digamber_jain'] ?? 'NO'),
                     'birth_time' => $r['birth_time'] ?? 'N/A',
                     'birth_place' => $r['birth_place'] ?? 'N/A',
@@ -553,10 +567,14 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
 </section>
 
 <script>
-    /* ── Toggle Bride/Groom pills ── */
-    function togglePill(btn) {
+    /* ── UI Logic ── */
+    function togglePill(btn, genderValue) {
         btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        const input = document.getElementById('genderInput');
+        if (input && genderValue) {
+            input.value = genderValue;
+        }
     }
 
     /* ── Dual age range sliders ── */
@@ -678,6 +696,47 @@ $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
     }
 
 </script>
+
+<?php if (!empty($ads['bottom'])): ?>
+<div class="bottom-ads-container" style="width:100%; text-align:center; padding: 40px 15px; background: #fff; border-top: 1px solid #eee;">
+    <div class="container">
+        <?php foreach($ads['bottom'] as $ad): ?>
+            <a href="<?php echo htmlspecialchars($ad['link'] ?? '#'); ?>" target="_blank" style="display:inline-block; width: 100%; max-width: 1100px; margin: 10px auto;">
+                <img src="<?php echo htmlspecialchars($ad['image']); ?>" alt="<?php echo htmlspecialchars($ad['title']); ?>" style="width: 100%; height: auto; max-height: 400px; object-fit: contain; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            </a>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($ads['left'])): ?>
+<div class="left-ads-container" style="position: fixed; top: 50%; left: 10px; transform: translateY(-50%); z-index: 999; display: flex; flex-direction: column; gap: 15px;">
+    <?php foreach($ads['left'] as $ad): ?>
+        <a href="<?php echo htmlspecialchars($ad['link'] ?? '#'); ?>" target="_blank" style="display: block;">
+            <img src="<?php echo htmlspecialchars($ad['image']); ?>" alt="<?php echo htmlspecialchars($ad['title']); ?>" style="max-width: 160px; max-height: 600px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        </a>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($ads['right'])): ?>
+<div class="right-ads-container" style="position: fixed; top: 50%; right: 10px; transform: translateY(-50%); z-index: 999; display: flex; flex-direction: column; gap: 15px;">
+    <?php foreach($ads['right'] as $ad): ?>
+        <a href="<?php echo htmlspecialchars($ad['link'] ?? '#'); ?>" target="_blank" style="display: block;">
+            <img src="<?php echo htmlspecialchars($ad['image']); ?>" alt="<?php echo htmlspecialchars($ad['title']); ?>" style="max-width: 160px; max-height: 600px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        </a>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
+<style>
+/* Hide side banners on smaller screens */
+@media (max-width: 1200px) {
+    .left-ads-container, .right-ads-container {
+        display: none !important;
+    }
+}
+</style>
 
 <?php include 'footer.php'; ?>
 </body>

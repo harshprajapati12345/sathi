@@ -176,18 +176,29 @@ $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
   }
 
   function deleteBlog(id) {
-    if (!confirm('Are you sure you want to delete this blog?')) return;
-    const formData = new FormData();
-    formData.append('type', 'blog');
-    formData.append('action', 'delete');
-    formData.append('id', id);
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Are you sure you want to delete this blog?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e94e77',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const formData = new FormData();
+        formData.append('type', 'blog');
+        formData.append('action', 'delete');
+        formData.append('id', id);
 
-    fetch('cms-action.php', { method: 'POST', body: formData })
-      .then(r => r.json())
-      .then(res => {
-        if (res.ok) window.location.reload();
-        else alert('Error: ' + (res.error || 'Failed'));
-      });
+        fetch('cms-action.php', { method: 'POST', body: formData })
+          .then(r => r.json())
+          .then(res => {
+            if (res.ok) window.location.reload();
+            else Swal.fire({icon: 'error', text: 'Error: ' + (res.error || 'Failed'), confirmButtonColor: '#e94e77'});
+          });
+      }
+    });
   }
 </script>
 </section>

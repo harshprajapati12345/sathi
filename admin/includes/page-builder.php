@@ -260,9 +260,9 @@ function admin_render_master_data_page(array $config): void
                 window.location.reload();
                 return;
             }
-            alert("Could not save record. Please try again.");
+            Swal.fire({icon: 'error', text: "Could not save record. Please try again.", confirmButtonColor: '#e94e77'});
         }).catch(function() {
-            alert("Could not save record. Please try again.");
+            Swal.fire({icon: 'error', text: "Could not save record. Please try again.", confirmButtonColor: '#e94e77'});
         });
     });
 
@@ -280,17 +280,27 @@ function admin_render_master_data_page(array $config): void
     document.querySelectorAll(".admin-master-delete").forEach(function(button) {
         button.addEventListener("click", function() {
             var id = this.dataset.id;
-            if (!id || !confirm("Are you sure you want to delete this record?")) {
-                return;
-            }
-            postData({slug: slug, action: "delete", id: id}).then(function(data) {
-                if (data && data.ok) {
-                    window.location.reload();
-                    return;
+            if (!id) return;
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e94e77',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    postData({slug: slug, action: "delete", id: id}).then(function(data) {
+                        if (data && data.ok) {
+                            window.location.reload();
+                            return;
+                        }
+                        Swal.fire({icon: 'error', text: "Could not delete record.", confirmButtonColor: '#e94e77'});
+                    }).catch(function() {
+                        Swal.fire({icon: 'error', text: "Could not delete record.", confirmButtonColor: '#e94e77'});
+                    });
                 }
-                alert("Could not delete record.");
-            }).catch(function() {
-                alert("Could not delete record.");
             });
         });
     });
@@ -399,10 +409,10 @@ function admin_render_members_approval_page(array $config): void
                         window.location.reload();
                         return;
                     }
-                    alert("Could not update user status.");
+                    Swal.fire({icon: 'error', text: "Could not update user status.", confirmButtonColor: '#e94e77'});
                     button.disabled = false;
                 }).catch(function(){
-                    alert("Could not update user status.");
+                    Swal.fire({icon: 'error', text: "Could not update user status.", confirmButtonColor: '#e94e77'});
                     button.disabled = false;
                 });
             });

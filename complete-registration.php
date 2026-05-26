@@ -20,6 +20,12 @@ if ($csrf === '' || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['cs
     exit;
 }
 
+$digamber = isset($_POST['digamber']) ? strtolower(trim((string) $_POST['digamber'])) : '';
+if ($digamber !== 'yes') {
+    echo json_encode(['ok' => false, 'error' => 'not_digamber_jain']);
+    exit;
+}
+
 $email = isset($_POST['email']) ? strtolower(trim((string) $_POST['email'])) : '';
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     echo json_encode(['ok' => false, 'error' => 'invalid_email']);

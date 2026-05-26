@@ -113,7 +113,8 @@ function saveState() {
     const name = document.getElementById('stateName').value;
     const country_id = document.getElementById('stateCountryId').value;
     const id = document.getElementById('stateId').value;
-    if(!name) return alert('Enter state name');
+    if(!name) return Swal.fire({icon: 'error', text: 'Enter state name', confirmButtonColor: '#e94e77'});
+    
     const body = new URLSearchParams({
         slug: 'master-state',
         action: currentStateAction,
@@ -122,23 +123,41 @@ function saveState() {
         country_id: country_id,
         status: 'Active'
     });
+    
     fetch('master-action.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body.toString()
-    }).then(r => r.json()).then(d => {
+    })
+    .then(r => r.json())
+    .then(d => {
         if(d.ok) window.location.reload();
-        else alert('Error: ' + (d.error || 'Unknown'));
+        else Swal.fire({icon: 'error', text: 'Error: ' + (d.error || 'Unknown'), confirmButtonColor: '#e94e77'});
     });
 }
 function deleteMaster(slug, id) {
-    if(!confirm('Deactivate this state?')) return;
-    const body = new URLSearchParams({ slug, action: 'delete', id, name: '-' });
-    fetch('master-action.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString()
-    }).then(r => r.json()).then(d => { if(d.ok) window.location.reload(); });
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Deactivate this state?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e94e77',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, deactivate it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const body = new URLSearchParams({ slug, action: 'delete', id, name: '-' });
+            fetch('master-action.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            })
+            .then(r => r.json())
+            .then(d => {
+                if(d.ok) window.location.reload();
+            });
+        }
+    });
 }
 function filterStateTable(val) {
     const q = val.toLowerCase();

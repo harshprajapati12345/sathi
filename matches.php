@@ -6,7 +6,7 @@ require_once __DIR__ . '/helpers/auth_helper.php';
 sathi_require_approval(); // Gated access
 
 $pageTitle = "Discover Verified Profiles - ShadikiBaat";
-$navActive = 'home';
+$navActive = 'matches';
 include 'header.php';
 ?>
 
@@ -24,13 +24,59 @@ include 'header.php';
     }
 
     .matches-page {
-        background: linear-gradient(155deg, #fdf2f7 0%, #fce4ee 40%, #f7eaff 100%);
+        position: relative;
+        background-color: #fff0f5;
+        background-image: radial-gradient(rgba(244, 92, 147, 0.25) 1px, transparent 1px);
+        background-size: 30px 30px;
         padding-top: 120px;
         padding-bottom: 100px;
         min-height: 100vh;
+        overflow: hidden;
+    }
+
+    .matches-page::before {
+        content: '';
+        position: absolute;
+        width: 900px;
+        height: 900px;
+        background: radial-gradient(circle, rgba(244,92,147,0.45) 0%, rgba(244,92,147,0) 70%);
+        top: -10%;
+        left: -10%;
+        border-radius: 50%;
+        filter: blur(100px);
+        animation: floatBlob1 15s infinite alternate ease-in-out;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .matches-page::after {
+        content: '';
+        position: absolute;
+        width: 1000px;
+        height: 1000px;
+        background: radial-gradient(circle, rgba(192,38,211,0.35) 0%, rgba(192,38,211,0) 70%);
+        bottom: -20%;
+        right: -20%;
+        border-radius: 50%;
+        filter: blur(120px);
+        animation: floatBlob2 18s infinite alternate ease-in-out;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    @keyframes floatBlob1 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(30%, 20%) scale(1.3); }
+    }
+
+    @keyframes floatBlob2 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(-20%, -30%) scale(1.2); }
     }
 
     .matches-container {
+        position: relative;
+        z-index: 2;
         max-width: 1340px;
         margin: 0 auto;
         padding: 0 24px;
@@ -38,6 +84,8 @@ include 'header.php';
 
     /* ── GRID ── */
     .matches-grid {
+        position: relative;
+        z-index: 2;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
         gap: 28px;
@@ -559,6 +607,15 @@ include 'header.php';
                 }
             }
 
+            // Fetch occupations for dropdown
+            $occRes = $db->query("SELECT id, name FROM occupations ORDER BY name ASC");
+            $occupationsList = [];
+            if ($occRes) {
+                while ($occRow = $occRes->fetch_assoc()) {
+                    $occupationsList[] = $occRow;
+                }
+            }
+
             // Get filters
             $search = trim($_GET['search'] ?? '');
             $gender = trim($_GET['gender'] ?? '');
@@ -566,6 +623,7 @@ include 'header.php';
             $digamber_jain = trim($_GET['digamber_jain'] ?? '');
             $gotra = trim($_GET['gotra'] ?? '');
             $location = trim($_GET['location'] ?? '');
+            $occupation_filter = trim($_GET['occupation'] ?? '');
             ?>
 
             <!-- SEARCH AND FILTER BAR -->
@@ -626,6 +684,21 @@ include 'header.php';
                                 <i class="fas fa-id-card"></i> Gotra
                             </label>
                             <input type="text" id="gotra-input" name="gotra" class="search-control" placeholder="Gotra..." value="<?php echo htmlspecialchars($gotra); ?>">
+                        </div>
+
+                        <!-- Profession / Occupation -->
+                        <div class="search-input-group">
+                            <label class="search-label" for="occupation-select">
+                                <i class="fas fa-briefcase"></i> Profession
+                            </label>
+                            <select id="occupation-select" name="occupation" class="search-control">
+                                <option value="">All Professions</option>
+                                <?php foreach ($occupationsList as $occ): ?>
+                                    <option value="<?php echo $occ['id']; ?>" <?php echo ($occupation_filter == $occ['id'] ? 'selected' : ''); ?>>
+                                        <?php echo htmlspecialchars($occ['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
                         <!-- Location -->
@@ -710,6 +783,9 @@ include 'header.php';
                 if ($gotra !== '') {
                     $whereClauses[] = "gotra LIKE '%" . $db->real_escape_string($gotra) . "%'";
                 }
+                if ($occupation_filter !== '') {
+                    $whereClauses[] = "occupation_id = " . (int)$occupation_filter;
+                }
                 if ($location !== '') {
                     $locEsc = $db->real_escape_string($location);
                     $whereClauses[] = "(birth_place LIKE '%$locEsc%' OR native_place LIKE '%$locEsc%' OR permanent_address LIKE '%$locEsc%' OR current_address LIKE '%$locEsc%')";
@@ -774,10 +850,12 @@ include 'header.php';
                         'marital_status' => $r['marital_status_val'] ?? $getLabel('marital_status', $r['marital_status_id'] ?? ''),
                         'which_temple' => $r['which_temple'] ?? 'N/A',
                         'img' => !empty($r['profile_photo']) 
-                            ? (strpos($r['profile_photo'], 'http') === 0 ? $r['profile_photo'] : (file_exists(__DIR__ . '/' . $r['profile_photo']) ? $r['profile_photo'] : ($r['gender'] === 'female' ? 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?q=80&w=1000' : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000')))
-                            : ($r['gender'] === 'female'
-                                ? 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?q=80&w=1000'
-                                : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000'),
+                            ? (strpos($r['profile_photo'], 'http') === 0 
+                                ? $r['profile_photo'] 
+                                : (file_exists(__DIR__ . '/uploads/profiles/' . $r['profile_photo']) 
+                                    ? 'uploads/profiles/' . $r['profile_photo'] 
+                                    : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=f45c93&color=fff&size=500'))
+                            : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=f45c93&color=fff&size=500',
 
                         // Extra Details directly from row
                         'digamber' => strtoupper($r['digamber_jain'] ?? 'NO'),
@@ -803,10 +881,17 @@ include 'header.php';
                     ];
                 }
 
-                if (empty($profiles)): ?>
+                if (empty($profiles)): 
+                    $noMatchMsg = 'No matches found yet';
+                    if ($gender === 'female') {
+                        $noMatchMsg = 'No bride profiles found';
+                    } elseif ($gender === 'male') {
+                        $noMatchMsg = 'No groom profiles found';
+                    }
+                ?>
                     <div class="pm-empty">
                         <i class="fas fa-heart-broken"></i>
-                        <h3>No matches found yet</h3>
+                        <h3><?php echo $noMatchMsg; ?></h3>
                         <p>We're verifying new profiles. Please check back shortly!</p>
                     </div>
                 <?php endif; ?>

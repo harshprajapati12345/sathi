@@ -46,11 +46,11 @@ require __DIR__ . '/includes/head.php';
   </div>
 
   <div class="admin-glass-card">
-    <h2>Scheduled exports</h2>
-    <p style="margin:0 0 16px;color:var(--admin-muted);font-size:14px;">No backend — buttons are visual only.</p>
+    <h2>Data Exports</h2>
+    <p style="margin:0 0 16px;color:var(--admin-muted);font-size:14px;">Export member data.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button type="button" class="admin-btn admin-btn-secondary" data-static-alert>Download CSV · Members</button>
-      <button type="button" class="admin-btn admin-btn-secondary" data-static-alert>Download CSV · Payments</button>
+      <a href="export-members.php?format=excel" class="admin-btn admin-btn-secondary"><i class="fas fa-file-excel" style="margin-right: 5px;"></i> Export Excel · Members</a>
+      <a href="export-members.php?format=pdf" class="admin-btn admin-btn-secondary"><i class="fas fa-file-pdf" style="margin-right: 5px;"></i> Export PDF · Members</a>
     </div>
   </div>
 </section>

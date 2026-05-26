@@ -8,7 +8,7 @@ include 'header.php';
     <header class="page-hero">
         <div class="container">
             <p class="page-kicker">Membership</p>
-            <h1>Membership Plans</h1>
+            <h1>Yearly Membership Plans</h1>
             <p class="page-lead">Choose a plan that suits your journey to finding the perfect match.</p>
         </div>
     </header>
@@ -17,7 +17,7 @@ include 'header.php';
         <div class="plans-grid">
             <div class="plan-card">
                 <p class="plan-badge">Free</p>
-                <h2>Free membership</h2>
+                <h2>Free Yearly Plan</h2>
                 <ul class="plan-features">
                     <li><i class="fa-solid fa-check" aria-hidden="true"></i> Create profile</li>
                     <li><i class="fa-solid fa-check" aria-hidden="true"></i> Browse profiles</li>
@@ -27,7 +27,7 @@ include 'header.php';
             </div>
             <div class="plan-card plan-card--featured">
                 <p class="plan-badge">Most popular</p>
-                <h2>Premium membership</h2>
+                <h2>Premium Yearly Plan</h2>
                 <ul class="plan-features">
                     <li><i class="fa-solid fa-check" aria-hidden="true"></i> Unlimited profile views</li>
                     <li><i class="fa-solid fa-check" aria-hidden="true"></i> Send &amp; receive unlimited interests</li>
@@ -38,7 +38,7 @@ include 'header.php';
             </div>
             <div class="plan-card">
                 <p class="plan-badge">Elite</p>
-                <h2>Elite membership</h2>
+                <h2>Elite Yearly Plan</h2>
                 <ul class="plan-features">
                     <li><i class="fa-solid fa-check" aria-hidden="true"></i> Dedicated relationship manager</li>
                     <li><i class="fa-solid fa-check" aria-hidden="true"></i> Personalized matchmaking</li>

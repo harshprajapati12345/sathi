@@ -2,25 +2,24 @@
 declare(strict_types=1);
 
 require __DIR__ . '/includes/bootstrap.php';
-require_once __DIR__ . '/includes/master-storage.php';
+require_once dirname(__DIR__) . '/config/database.php';
 
 $pageTitle = 'Gotra';
 $adminCurrent = 'master-gotra';
 
 require __DIR__ . '/includes/head.php';
 
-$pmDbSlug = 'master-gotra';
-$pmDbRows = sathi_master_storage_get($pmDbSlug);
-
 $db = sathi_db();
-$religionsRes = $db->query("SELECT id, name FROM religions WHERE status = 1 ORDER BY name");
-$religions = [];
-if ($religionsRes) {
-    while($r = $religionsRes->fetch_assoc()) $religions[] = $r;
+$gotras = [];
+$res = $db->query("SELECT id, name, status, created_at FROM gotras ORDER BY name");
+if ($res) {
+    while($row = $res->fetch_assoc()) {
+        $gotras[] = $row;
+    }
 }
 
 $pmHeroTitle = 'Gotra / Caste';
-$pmHeroLead = 'Manage gotras and their parent religions.';
+$pmHeroLead = 'Manage gotras (Community-Based Identity Verification).';
 $pmHeroIcon = 'fas fa-om';
 ?>
 <section class="admin-page-placeholder">
@@ -31,32 +30,30 @@ $pmHeroIcon = 'fas fa-om';
   </div>
 
   <div class="admin-static-toolbar">
-    <button type="button" class="admin-btn admin-btn-primary" onclick="showAddGotraModal()">Add Gotra</button>
-    <input type="search" class="admin-input-search" placeholder="Search gotras..." style="max-width:320px;" oninput="filterGotraTable(this.value)">
+    <button type="button" class="admin-btn admin-btn-primary" onclick="showAddModal()">Add Gotra</button>
+    <input type="search" class="admin-input-search" placeholder="Search gotras..." style="max-width:320px;" oninput="filterTable(this.value)">
   </div>
 
   <div class="admin-glass-card">
     <div class="admin-table-wrap">
-      <table class="admin-table" id="gotraTable">
+      <table class="admin-table" id="dataTable">
         <thead>
           <tr>
             <th>#</th>
             <th>Name</th>
-            <th>Religion ID</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($pmDbRows as $i => $row): ?>
+          <?php foreach ($gotras as $i => $row): ?>
           <tr>
             <td><?php echo $i + 1; ?></td>
             <td><strong><?php echo htmlspecialchars($row['name']); ?></strong></td>
-            <td><?php echo (int)($row['religion_id'] ?? 0); ?></td>
             <td><span class="admin-badge <?php echo $row['status'] === 'Active' ? 'ok' : 'pending'; ?>"><?php echo $row['status']; ?></span></td>
             <td>
-               <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="editGotra(<?php echo htmlspecialchars(json_encode($row)); ?>)">Edit</button>
-               <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="deleteMaster('master-gotra', '<?php echo $row['id']; ?>')">Delete</button>
+               <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="editModal(<?php echo htmlspecialchars(json_encode($row)); ?>)">Edit</button>
+               <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="deleteRow(<?php echo $row['id']; ?>)">Delete</button>
             </td>
           </tr>
           <?php endforeach; ?>
@@ -66,83 +63,95 @@ $pmHeroIcon = 'fas fa-om';
   </div>
 </section>
 
-<div id="gotraModal" class="admin-modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+<div id="dataModal" class="admin-modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
   <div class="admin-glass-card" style="width:100%; max-width:400px; padding:24px;">
     <h3 id="modalTitle">Add Gotra</h3>
     <div class="admin-form-field" style="margin-bottom:16px;">
       <label>Name</label>
-      <input type="text" id="gotraName" class="admin-input" style="width:100%;">
+      <input type="text" id="dataName" class="admin-input" style="width:100%;">
     </div>
     <div class="admin-form-field" style="margin-bottom:16px;">
-      <label>Religion</label>
-      <select id="gotraReligionId" class="admin-input" style="width:100%;">
-        <?php foreach ($religions as $rel): ?>
-        <option value="<?php echo $rel['id']; ?>"><?php echo htmlspecialchars($rel['name']); ?></option>
-        <?php endforeach; ?>
+      <label>Status</label>
+      <select id="dataStatus" class="admin-input" style="width:100%;">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
       </select>
     </div>
     <div style="display:flex; gap:12px; margin-top:24px;">
-      <button type="button" class="admin-btn admin-btn-primary" onclick="saveGotra()">Save</button>
-      <button type="button" class="admin-btn admin-btn-secondary" onclick="closeGotraModal()">Cancel</button>
+      <button type="button" class="admin-btn admin-btn-primary" onclick="saveData()">Save</button>
+      <button type="button" class="admin-btn admin-btn-secondary" onclick="closeModal()">Cancel</button>
     </div>
-    <input type="hidden" id="gotraId">
+    <input type="hidden" id="dataId">
   </div>
 </div>
 
 <script>
-let currentGotraAction = 'add';
-function showAddGotraModal() {
-    currentGotraAction = 'add';
+let currentAction = 'add';
+function showAddModal() {
+    currentAction = 'add';
     document.getElementById('modalTitle').textContent = 'Add Gotra';
-    document.getElementById('gotraName').value = '';
-    document.getElementById('gotraId').value = '';
-    document.getElementById('gotraModal').style.display = 'flex';
+    document.getElementById('dataName').value = '';
+    document.getElementById('dataStatus').value = 'Active';
+    document.getElementById('dataId').value = '';
+    document.getElementById('dataModal').style.display = 'flex';
 }
-function editGotra(row) {
-    currentGotraAction = 'edit';
+function editModal(row) {
+    currentAction = 'edit';
     document.getElementById('modalTitle').textContent = 'Edit Gotra';
-    document.getElementById('gotraName').value = row.name;
-    document.getElementById('gotraId').value = row.id;
-    document.getElementById('gotraReligionId').value = row.religion_id;
-    document.getElementById('gotraModal').style.display = 'flex';
+    document.getElementById('dataName').value = row.name;
+    document.getElementById('dataStatus').value = row.status;
+    document.getElementById('dataId').value = row.id;
+    document.getElementById('dataModal').style.display = 'flex';
 }
-function closeGotraModal() {
-    document.getElementById('gotraModal').style.display = 'none';
+function closeModal() {
+    document.getElementById('dataModal').style.display = 'none';
 }
-function saveGotra() {
-    const name = document.getElementById('gotraName').value;
-    const rel_id = document.getElementById('gotraReligionId').value;
-    const id = document.getElementById('gotraId').value;
-    if(!name) return alert('Enter name');
+function saveData() {
+    const name = document.getElementById('dataName').value;
+    const status = document.getElementById('dataStatus').value;
+    const id = document.getElementById('dataId').value;
+    if(!name) return Swal.fire({icon: 'error', text: 'Enter name', confirmButtonColor: '#e94e77'});
+    
     const body = new URLSearchParams({
-        slug: 'master-gotra',
-        action: currentGotraAction,
+        table: 'gotras',
+        action: currentAction,
         id: id,
         name: name,
-        religion_id: rel_id,
-        status: 'Active'
+        status: status
     });
-    fetch('master-action.php', {
+    
+    fetch('custom-master-action.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body.toString()
     }).then(r => r.json()).then(d => {
         if(d.ok) window.location.reload();
-        else alert('Error: ' + (d.error || 'Unknown'));
+        else Swal.fire({icon: 'error', text: 'Error: ' + (d.error || 'Unknown'), confirmButtonColor: '#e94e77'});
     });
 }
-function deleteMaster(slug, id) {
-    if(!confirm('Deactivate this row?')) return;
-    const body = new URLSearchParams({ slug, action: 'delete', id, name: '-' });
-    fetch('master-action.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString()
-    }).then(r => r.json()).then(d => { if(d.ok) window.location.reload(); });
+function deleteRow(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Are you sure you want to delete this row?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e94e77',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const body = new URLSearchParams({ table: 'gotras', action: 'delete', id: id });
+            fetch('custom-master-action.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            }).then(r => r.json()).then(d => { if(d.ok) window.location.reload(); });
+        }
+    });
 }
-function filterGotraTable(val) {
+function filterTable(val) {
     const q = val.toLowerCase();
-    const rows = document.querySelectorAll('#gotraTable tbody tr');
+    const rows = document.querySelectorAll('#dataTable tbody tr');
     rows.forEach(r => {
         const text = r.innerText.toLowerCase();
         r.style.display = text.includes(q) ? '' : 'none';

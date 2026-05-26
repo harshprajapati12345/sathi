@@ -42,29 +42,29 @@ include 'header.php';
             <div class="contact-form-box">
                 <h2>Send a message</h2>
                 <?php if ($formSent): ?>
-                    <p class="form-success" role="status">Thank you — your message has been received. We’ll get back to you soon.</p>
+                    <p class="form-success" role="status">Thank you — your message has been received. We’ll get back to you soon.<br><br><strong>आपका फॉर्म सफलतापूर्वक जमा हो गया है।</strong></p>
                 <?php endif; ?>
                 <form method="post" action="contact.php" novalidate>
                     <div class="form-row">
-                        <label for="full_name">Full name</label>
+                        <label for="full_name">Full name / पूरा नाम / પૂરું નામ</label>
                         <input type="text" id="full_name" name="full_name" required autocomplete="name"
                             placeholder="Your full name">
                     </div>
                     <div class="form-row">
-                        <label for="email">Email address</label>
+                        <label for="email">Email address / ईमेल पता / ઇમેઇલ સરનામું</label>
                         <input type="email" id="email" name="email" required autocomplete="email"
                             placeholder="you@example.com">
                     </div>
                     <div class="form-row">
-                        <label for="phone">Phone number</label>
+                        <label for="phone">Phone number / फोन नंबर / ફોન નંબર</label>
                         <input type="tel" id="phone" name="phone" autocomplete="tel"
                             placeholder="+91 …">
                     </div>
                     <div class="form-row">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" required placeholder="How can we help you?"></textarea>
+                        <label for="message">Message / संदेश / સંદેશ</label>
+                        <textarea id="message" name="message" required placeholder="How can we help you? / हम आपकी कैसे मदद कर सकते हैं? / અમે તમને કેવી રીતે મદદ કરી શકીએ?"></textarea>
                     </div>
-                    <button type="submit" name="contact_submit" value="1" class="page-cta" style="width: 100%; justify-content: center;">Send message</button>
+                    <button type="submit" name="contact_submit" value="1" class="page-cta" style="width: 100%; justify-content: center;">Send message संदेश भेजें સંદેશ મોકલો</button>
                 </form>
             </div>
         </div>

@@ -39,7 +39,7 @@
           if (!d || !d.ok) throw new Error('fail');
           window.location.reload();
         })
-        .catch(function () { alert('Could not save.'); });
+        .catch(function () { Swal.fire({icon: 'error', text: 'Could not save.', confirmButtonColor: '#e94e77'}); });
     });
   });
 
@@ -57,7 +57,7 @@
           if (!d || !d.ok) throw new Error('fail');
           window.location.reload();
         })
-        .catch(function () { alert('Could not save.'); });
+        .catch(function () { Swal.fire({icon: 'error', text: 'Could not save.', confirmButtonColor: '#e94e77'}); });
     });
   });
 
@@ -66,13 +66,24 @@
       var slug = btn.getAttribute('data-master-slug');
       var id = btn.getAttribute('data-id');
       if (!slug || !id) return;
-      if (!window.confirm('Deactivate this row?')) return;
-      postForm('master-action.php', { slug: slug, action: 'delete', id: id, name: '-' })
-        .then(function (d) {
-          if (!d || !d.ok) throw new Error('fail');
-          window.location.reload();
-        })
-        .catch(function () { alert('Could not delete.'); });
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Deactivate this row?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e94e77',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, deactivate it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          postForm('master-action.php', { slug: slug, action: 'delete', id: id, name: '-' })
+            .then(function (d) {
+              if (!d || !d.ok) throw new Error('fail');
+              window.location.reload();
+            })
+            .catch(function () { Swal.fire({icon: 'error', text: 'Could not delete.', confirmButtonColor: '#e94e77'}); });
+        }
+      });
     });
   });
 
@@ -85,7 +96,7 @@
           if (!d || !d.ok) throw new Error('fail');
           window.location.reload();
         })
-        .catch(function () { alert('Could not approve.'); });
+        .catch(function () { Swal.fire({icon: 'error', text: 'Could not approve.', confirmButtonColor: '#e94e77'}); });
     });
   });
 
@@ -99,7 +110,7 @@
           if (!d || !d.ok) throw new Error('fail');
           window.location.reload();
         })
-        .catch(function () { alert('Could not reject.'); });
+        .catch(function () { Swal.fire({icon: 'error', text: 'Could not reject.', confirmButtonColor: '#e94e77'}); });
     });
   });
 })();

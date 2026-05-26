@@ -46,8 +46,6 @@ $settings = sathi_site_settings_all();
 
     btnSave.addEventListener('click', function () {
       btnSave.disabled = true;
-      status.textContent = 'Saving…';
-      status.style.color = '#666';
 
       const settings = {
         payment_enabled: document.getElementById('set_payment_enabled').checked ? '1' : '0'
@@ -61,16 +59,13 @@ $settings = sathi_site_settings_all();
         .then(r => r.json())
         .then(data => {
           if (data.ok) {
-            status.textContent = 'Settings saved successfully!';
-            status.style.color = 'green';
-            setTimeout(() => { status.textContent = ''; }, 3000);
+            Swal.fire({icon: 'success', title: 'Saved!', text: 'Settings saved successfully!', confirmButtonColor: '#e94e77'});
           } else {
             throw new Error(data.error || 'Unknown error');
           }
         })
         .catch(err => {
-          status.textContent = 'Error: ' + err.message;
-          status.style.color = 'red';
+          Swal.fire({icon: 'error', text: 'Error: ' + err.message, confirmButtonColor: '#e94e77'});
         })
         .finally(() => {
           btnSave.disabled = false;

@@ -309,7 +309,7 @@ if ($msRes) {
                     <?php echo htmlspecialchars((string) ($r['education_val'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?>
                   </div>
                   <div style="font-weight: 700; color: #059669; font-size: 12px;">
-                    ₹ <?php echo number_format((float) ($r['annual_income'] ?? 0)); ?>
+                    <?php echo htmlspecialchars((string) ($r['annual_income'] ?? 'N/A')); ?>
                   </div>
                 </td>
                 <td style="padding: 15px 20px; border-bottom: 1px solid #f3f4f6;">
@@ -348,10 +348,16 @@ if ($msRes) {
                   </span>
                 </td>
                 <td style="padding: 15px 20px; border-bottom: 1px solid #f3f4f6;">
-                  <a class="admin-btn admin-btn-sm" href="member-view.php?id=<?php echo (int) ($r['id'] ?? 0); ?>"
-                    style="background: #fff; border: 1px solid #e5e7eb; color: var(--admin-rose-deep); font-weight: 700; transition: all 0.2s;">
-                    <i class="fas fa-eye" style="margin-right: 4px;"></i> View
-                  </a>
+                  <div style="display: flex; gap: 8px; flex-direction: column;">
+                    <a class="admin-btn admin-btn-sm" href="member-view.php?id=<?php echo (int) ($r['id'] ?? 0); ?>"
+                      style="background: #fff; border: 1px solid #e5e7eb; color: var(--admin-rose-deep); font-weight: 700; transition: all 0.2s; padding: 6px 12px; font-size: 12px; border-radius: 6px; text-align: center; display: inline-block;">
+                      <i class="fas fa-eye" style="margin-right: 4px;"></i> View
+                    </a>
+                    <button type="button" class="admin-btn admin-btn-sm" onclick="deleteMember(<?php echo (int) ($r['id'] ?? 0); ?>)"
+                      style="background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444; font-weight: 700; transition: all 0.2s; padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; text-align: center;">
+                      <i class="fas fa-trash" style="margin-right: 4px;"></i> Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -391,5 +397,41 @@ if ($msRes) {
 
   </div>
 </section>
+
+<script>
+function deleteMember(id) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "Are you sure you want to delete this member? This action cannot be undone.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e94e77',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const formData = new FormData();
+      formData.append('id', id);
+
+      fetch('api/delete-member.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.ok) {
+          Swal.fire({icon: 'success', title: 'Deleted!', text: data.message, confirmButtonColor: '#e94e77'}).then(() => location.reload());
+        } else {
+          Swal.fire({icon: 'error', title: 'Error', text: data.error, confirmButtonColor: '#e94e77'});
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({icon: 'error', title: 'Oops...', text: 'An error occurred while deleting the member.', confirmButtonColor: '#e94e77'});
+      });
+    }
+  });
+}
+</script>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>

@@ -21,6 +21,9 @@ return [
 
     ['section', 'Registration Form Controls'],
     ['link', 'form-field-settings', 'Field Visibility', 'fa-sliders', 'form-field-settings.php'],
+    ['link', 'master-mandir', 'Mandir Master', 'fa-vihara', 'master-mandir.php'],
+    ['link', 'master-subcast', 'Subcast Master', 'fa-users', 'master-subcast.php'],
+    ['link', 'master-gotra', 'Gotra Master', 'fa-om', 'master-gotra.php'],
 
     ['section', 'Payments'],
     ['link', 'payments-history', 'Payment History', 'fa-receipt', 'payments.php'],
@@ -32,9 +35,11 @@ return [
     ['link', 'cms-blogs', 'Blogs', 'fa-newspaper', 'blogs.php'],
     ['link', 'cms-stories', 'Success Stories', 'fa-heart', 'success-stories.php'],
     ['link', 'cms-banner', 'Homepage Banner', 'fa-image', 'homepage-banner.php'],
+    ['link', 'cms-ads', 'Advertisements', 'fa-ad', 'advertisements.php'],
 
     ['section', 'Reports'],
     ['link', 'reports', 'Reports', 'fa-chart-column', 'reports.php'],
+    ['link', 'profession-stats', 'Profession Stats', 'fa-briefcase', 'profession-stats.php'],
 
     ['section', 'Settings'],
     ['link', 'settings', 'Settings', 'fa-gear', 'settings.php'],

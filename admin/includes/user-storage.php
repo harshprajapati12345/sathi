@@ -24,37 +24,54 @@ function sathi_user_repo_find_by_id($id)
 
     $query = "SELECT u.*, 
                 r.name as religion,
-                mt.name as mother_tongue_val,
-                ms.name as marital_status_val,
-                e.name as education_val,
-                occ.name as occupation_val,
-                fd.father_name as father_name, 
-                fd.father_mobile as father_mobile, 
-                fd.father_income as father_income, 
-                fd.father_occupation as father_occ,
-                fd.mother_name as mother_name, 
-                fd.mother_mobile as mother_mobile, 
-                fd.mother_income as mother_income, 
-                fd.mother_occupation as mother_occ,
-                fd.brothers as bro_total, 
-                fd.brothers_married as bro_married, 
-                fd.brothers_unmarried as bro_unmarried,
-                fd.sisters as sis_total, 
-                fd.sisters_married as sis_married, 
-                fd.sisters_unmarried as sis_unmarried,
-                wd.occupation_firm as occupation_firm, 
-                wd.occupation_designation as occupation_designation, 
-                wd.annual_income as annual_income,
-                ad.permanent_address as permanent_address, 
-                ad.current_address as current_address,
-                pa.height_cm as height_cm, 
-                pa.weight_kg as weight_kg, 
-                pa.gotra as gotra, 
-                pa.horoscope as horoscope, 
-                               pa.handicapped as handicapped,
+                COALESCE(mt.name, c.language_known) as mother_tongue_val,
+                COALESCE(ms.name, c.widow_divorce) as marital_status_val,
+                COALESCE(e.name, c.higher_education) as education_val,
+                COALESCE(occ.name, c.candidate_occupation) as occupation_val,
+                COALESCE(fd.father_name, c.father_name) as father_name, 
+                COALESCE(fd.father_mobile, c.father_mobile_number) as father_mobile, 
+                COALESCE(fd.father_income, c.father_annual_income) as father_income, 
+                COALESCE(fd.father_occupation, c.father_occupation) as father_occ,
+                COALESCE(fd.mother_name, c.mother_name) as mother_name, 
+                COALESCE(fd.mother_mobile, c.mother_mobile_number) as mother_mobile, 
+                COALESCE(fd.mother_income, c.mother_annual_income) as mother_income, 
+                COALESCE(fd.mother_occupation, c.mother_occupation) as mother_occ,
+                COALESCE(fd.brothers, c.brothers) as bro_total, 
+                COALESCE(fd.brothers_married, c.brothers_married_count) as bro_married, 
+                COALESCE(fd.brothers_unmarried, c.brothers_unmarried_count) as bro_unmarried,
+                COALESCE(fd.sisters, c.sisters) as sis_total, 
+                COALESCE(fd.sisters_married, c.sisters_married_count) as sis_married, 
+                COALESCE(fd.sisters_unmarried, c.sisters_unmarried_count) as sis_unmarried,
+                COALESCE(wd.occupation_firm, c.occupation_firm) as occupation_firm, 
+                COALESCE(wd.occupation_designation, c.occupation_designation) as occupation_designation, 
+                COALESCE(wd.annual_income, c.candidate_annual_income) as annual_income,
+                COALESCE(ad.permanent_address, c.permanent_address) as permanent_address, 
+                COALESCE(ad.current_address, c.candidate_current_address) as current_address,
+                COALESCE(pa.height_cm, c.height) as height_cm, 
+                COALESCE(pa.weight_kg, c.weight) as weight_kg, 
+                COALESCE(pa.gotra, c.gotra) as gotra, 
+                COALESCE(pa.horoscope, c.star) as star, 
+                COALESCE(pa.horoscope, c.horoscope) as horoscope, 
+                COALESCE(pa.handicapped, c.handicapped_physical_deficiency) as handicapped,
                 pi.transaction_id as razorpay_payment_id,
-                u.profile_photo as profile_photo_url
+                COALESCE(u.profile_photo, c.candidate_photo) as profile_photo_url,
+                c.are_you_digamber_jain as digamber_jain,
+                c.birth_time,
+                c.birth_place,
+                c.native as native_place,
+                c.rasi as rasi,
+                c.dosh as dosh,
+                c.hobbies as c_hobbies,
+                u.reference_person_1_name, u.reference_person_1_mobile, u.reference_person_1_relation,
+                u.reference_person_2_name, u.reference_person_2_mobile, u.reference_person_2_relation,
+                mnd.name as mandir_name,
+                sbc.name as subcast_name,
+                gtr.name as gotra_name
               FROM users u
+              LEFT JOIN mandirs mnd ON u.mandir_id = mnd.id
+              LEFT JOIN subcasts sbc ON u.subcast_id = sbc.id
+              LEFT JOIN gotras gtr ON u.gotra_id = gtr.id
+              LEFT JOIN candidates c ON u.email = c.email_address COLLATE utf8mb4_unicode_ci
               LEFT JOIN religions r ON u.religion_id = r.id
               LEFT JOIN mother_tongues mt ON u.mother_tongue_id = mt.id
               LEFT JOIN marital_statuses ms ON u.marital_status_id = ms.id
@@ -83,6 +100,8 @@ function sathi_user_repo_find_by_id($id)
         }
         if (!empty($hobbies)) {
             $row['hobbies'] = implode(', ', $hobbies);
+        } else if (!empty($row['c_hobbies'])) {
+            $row['hobbies'] = $row['c_hobbies'];
         }
 
         // Fetch Languages
@@ -95,6 +114,8 @@ function sathi_user_repo_find_by_id($id)
         }
         if (!empty($langs)) {
             $row['languages_known'] = implode(', ', $langs);
+        } else if (!empty($row['mother_tongue_val'])) {
+            $row['languages_known'] = $row['mother_tongue_val'];
         }
     }
 
@@ -121,20 +142,20 @@ function sathi_users_list_all($limit = 50, $offset = 0, $filters = [], $sort = '
         $where[] = "u.gender = '" . $db->real_escape_string($filters['gender']) . "'";
     }
     if (!empty($filters['digamber_jain'])) {
-        $where[] = "u.digamber_jain = '" . $db->real_escape_string($filters['digamber_jain']) . "'";
+        $where[] = "c.are_you_digamber_jain = '" . $db->real_escape_string($filters['digamber_jain']) . "'";
     }
     if (!empty($filters['marital_status'])) {
         $where[] = "u.marital_status_id = " . (int) $filters['marital_status'];
     }
     if (!empty($filters['gotra'])) {
-        $where[] = "u.gotra LIKE '%" . $db->real_escape_string($filters['gotra']) . "%'";
+        $where[] = "(u.gotra LIKE '%" . $db->real_escape_string($filters['gotra']) . "%' OR c.gotra LIKE '%" . $db->real_escape_string($filters['gotra']) . "%')";
     }
     if (!empty($filters['temple'])) {
         $where[] = "u.which_temple LIKE '%" . $db->real_escape_string($filters['temple']) . "%'";
     }
     if (!empty($filters['location'])) {
         $loc = $db->real_escape_string($filters['location']);
-        $where[] = "(u.birth_place LIKE '%$loc%' OR u.native_place LIKE '%$loc%' OR u.permanent_address LIKE '%$loc%' OR u.current_address LIKE '%$loc%')";
+        $where[] = "(u.birth_place LIKE '%$loc%' OR u.native_place LIKE '%$loc%' OR u.permanent_address LIKE '%$loc%' OR u.current_address LIKE '%$loc%' OR c.birth_place LIKE '%$loc%' OR c.native LIKE '%$loc%' OR c.permanent_address LIKE '%$loc%' OR c.candidate_current_address LIKE '%$loc%')";
     }
     if (!empty($filters['age_min'])) {
         $where[] = "TIMESTAMPDIFF(YEAR, u.dob, CURDATE()) >= " . (int) $filters['age_min'];
@@ -146,11 +167,13 @@ function sathi_users_list_all($limit = 50, $offset = 0, $filters = [], $sort = '
     $whereSql = implode(" AND ", $where);
 
     $query = "SELECT u.*, 
-                e.name as education_val,
-                occ.name as occupation_val,
+                COALESCE(e.name, c.higher_education) as education_val,
+                COALESCE(occ.name, c.candidate_occupation) as occupation_val,
                 r.name as religion,
-                ms.name as marital_status_val
+                COALESCE(ms.name, c.widow_divorce) as marital_status_val,
+                c.birth_place, c.native as native_place, c.are_you_digamber_jain as digamber_jain
               FROM users u
+              LEFT JOIN candidates c ON u.email = c.email_address COLLATE utf8mb4_unicode_ci
               LEFT JOIN educations e ON u.education_id = e.id
               LEFT JOIN occupations occ ON u.occupation_id = occ.id
               LEFT JOIN religions r ON u.religion_id = r.id
@@ -178,20 +201,20 @@ function sathi_users_count_all($filters = [])
         $where[] = "u.gender = '" . $db->real_escape_string($filters['gender']) . "'";
     }
     if (!empty($filters['digamber_jain'])) {
-        $where[] = "u.digamber_jain = '" . $db->real_escape_string($filters['digamber_jain']) . "'";
+        $where[] = "c.are_you_digamber_jain = '" . $db->real_escape_string($filters['digamber_jain']) . "'";
     }
     if (!empty($filters['marital_status'])) {
         $where[] = "u.marital_status_id = " . (int) $filters['marital_status'];
     }
     if (!empty($filters['gotra'])) {
-        $where[] = "u.gotra LIKE '%" . $db->real_escape_string($filters['gotra']) . "%'";
+        $where[] = "(u.gotra LIKE '%" . $db->real_escape_string($filters['gotra']) . "%' OR c.gotra LIKE '%" . $db->real_escape_string($filters['gotra']) . "%')";
     }
     if (!empty($filters['temple'])) {
         $where[] = "u.which_temple LIKE '%" . $db->real_escape_string($filters['temple']) . "%'";
     }
     if (!empty($filters['location'])) {
         $loc = $db->real_escape_string($filters['location']);
-        $where[] = "(u.birth_place LIKE '%$loc%' OR u.native_place LIKE '%$loc%' OR u.permanent_address LIKE '%$loc%' OR u.current_address LIKE '%$loc%')";
+        $where[] = "(u.birth_place LIKE '%$loc%' OR u.native_place LIKE '%$loc%' OR u.permanent_address LIKE '%$loc%' OR u.current_address LIKE '%$loc%' OR c.birth_place LIKE '%$loc%' OR c.native LIKE '%$loc%' OR c.permanent_address LIKE '%$loc%' OR c.candidate_current_address LIKE '%$loc%')";
     }
     if (!empty($filters['age_min'])) {
         $where[] = "TIMESTAMPDIFF(YEAR, u.dob, CURDATE()) >= " . (int) $filters['age_min'];
@@ -202,7 +225,7 @@ function sathi_users_count_all($filters = [])
 
     $whereSql = implode(" AND ", $where);
 
-    $res = $db->query("SELECT COUNT(*) as total FROM users u WHERE $whereSql");
+    $res = $db->query("SELECT COUNT(*) as total FROM users u LEFT JOIN candidates c ON u.email = c.email_address COLLATE utf8mb4_unicode_ci WHERE $whereSql");
     $row = $res->fetch_assoc();
     return (int) ($row['total'] ?? 0);
 }
@@ -289,7 +312,8 @@ function sathi_candidates_list_all($limit = 300)
     $limit = (int) $limit;
     $result = $db->query("SELECT 
         id, 
-        candidate_full_name,
+        first_name,
+        last_name,
         email_address,
         gender,
         birth_date,
@@ -335,9 +359,9 @@ function sathi_candidate_find_by_id($id)
     return [
         'id' => $row['id'],
         'profile_id' => 'CSV' . str_pad((string)$row['id'], 6, '0', STR_PAD_LEFT),
-        'first_name' => $row['candidate_full_name'],
-        'last_name' => '',
-        'name' => $row['candidate_full_name'],
+        'first_name' => $row['first_name'],
+        'last_name' => $row['last_name'],
+        'name' => trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')),
         'email' => $row['email_address'] ?: ($row['email'] ?? 'N/A'),
         'mobile' => $row['mobile_number'],
         'whatsapp' => $row['mobile_number'],

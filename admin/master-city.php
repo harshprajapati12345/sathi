@@ -121,7 +121,7 @@ function saveCity() {
     const state_id = document.getElementById('cityStateId').value;
     const id = document.getElementById('cityId').value;
     
-    if(!name) return alert('Enter city name');
+    if(!name) return Swal.fire({icon: 'error', text: 'Enter city name', confirmButtonColor: '#e94e77'});
     
     const body = new URLSearchParams({
         slug: 'master-city',
@@ -140,21 +140,32 @@ function saveCity() {
     .then(r => r.json())
     .then(d => {
         if(d.ok) window.location.reload();
-        else alert('Error: ' + (d.error || 'Unknown'));
+        else Swal.fire({icon: 'error', text: 'Error: ' + (d.error || 'Unknown'), confirmButtonColor: '#e94e77'});
     });
 }
 
 function deleteMaster(slug, id) {
-    if(!confirm('Deactivate this city?')) return;
-    const body = new URLSearchParams({ slug, action: 'delete', id, name: '-' });
-    fetch('master-action.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString()
-    })
-    .then(r => r.json())
-    .then(d => {
-        if(d.ok) window.location.reload();
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Deactivate this city?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e94e77',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, deactivate it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const body = new URLSearchParams({ slug, action: 'delete', id, name: '-' });
+            fetch('master-action.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            })
+            .then(r => r.json())
+            .then(d => {
+                if(d.ok) window.location.reload();
+            });
+        }
     });
 }
 
