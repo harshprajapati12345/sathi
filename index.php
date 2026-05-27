@@ -50,7 +50,7 @@ if (empty($dynamicTestimonials)) {
 }
 
 // Fetch Blogs
-$blogsQuery = $db->query("SELECT title, slug, image, content, created_at FROM blogs WHERE status = 'published' ORDER BY id DESC LIMIT 3");
+$blogsQuery = $db->query("SELECT title, slug, image, content, created_at FROM blogs WHERE status = 'published' ORDER BY id DESC LIMIT 4");
 $latestBlogs = $blogsQuery ? $blogsQuery->fetch_all(MYSQLI_ASSOC) : [];
 
 // Fetch Advertisements
@@ -76,54 +76,57 @@ if ($adsQuery) {
 <?php endif; ?>
 
 <!-- ═══ HERO SECTION ═══ -->
+<style>
+    #home.hero {
+        min-height: auto !important;
+        padding-top: 80px !important;
+        align-items: flex-start;
+    }
+    .stats-bar {
+        padding-top: 10px !important; 
+    }
+    @media (max-width: 768px) {
+        #home.hero {
+            padding-top: 56px !important; /* Matches mobile navbar height */
+        }
+        .stats-bar {
+            padding-top: 0px !important;
+        }
+    }
+</style>
 <section class="hero hero--fullbleed" id="home">
-    <div class="hero-bg" style="background-image: url('<?php echo htmlspecialchars($heroBg, ENT_QUOTES, 'UTF-8'); ?>');" role="img"
-        aria-label="Hero background image"></div>
-    <div class="hero-overlay" aria-hidden="true"></div>
-    <div class="container hero-inner">
-        <div class="hero-text-block fade-up">
-            <div class="hero-label">WHERE RELATIONSHIPS BEGIN ❤️</div>
-            <h1><?php echo $heroTitle; ?></h1>
-            <p class="hero-sub"><?php echo $heroSub; ?></p>
-
-            <!-- Search/Filter Bar -->
-            <form action="matches.php" method="GET" class="search-bar">
-                <input type="hidden" name="gender" id="genderInput" value="female">
-                <div class="search-group">
-                    <label>I am looking for</label>
-                    <div class="toggle-pills">
-                        <button type="button" class="active" onclick="togglePill(this, 'female')">Bride</button>
-                        <button type="button" onclick="togglePill(this, 'male')">Groom</button>
-                    </div>
+    <div class="hero-slider" style="position: relative; width: 100%; overflow: hidden; z-index: 0;">
+        <div class="hero-slider-track" style="display: flex; width: 100%;">
+            <?php
+            $sliderImages = [
+                'assets/sliders images on home page/ChatGPT Image May 27, 2026, 12_05_15 PM.png',
+                'assets/sliders images on home page/ChatGPT Image May 27, 2026, 12_05_37 PM.png',
+                'assets/sliders images on home page/ChatGPT Image May 27, 2026, 12_10_17 PM.png'
+            ];
+            foreach ($sliderImages as $img): ?>
+                <div class="hero-slide" style="flex: 0 0 100%;">
+                    <img src="<?php echo htmlspecialchars($img, ENT_QUOTES, 'UTF-8'); ?>" alt="Hero Banner" style="width: 100%; height: auto; display: block;">
                 </div>
-                <div class="search-group search-group--age">
-                    <label>Age Range</label>
-                    <div class="dual-range-wrap">
-                        <div class="dual-range-track" id="ageTrack" aria-hidden="true"></div>
-                        <input type="range" min="18" max="50" value="21" id="ageMin" class="dual-range dual-range--min"
-                            aria-label="Minimum age">
-                        <input type="range" min="18" max="50" value="30" id="ageMax" class="dual-range dual-range--max"
-                            aria-label="Maximum age">
-                    </div>
-                    <span class="range-val" id="ageVal">21 – 30 Years</span>
-                </div>
-
-                <div class="search-group">
-                    <label>City</label>
-                    <select name="location" aria-label="City">
-                        <option value="">All Cities</option>
-                        <option value="Mumbai">Mumbai</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Bangalore">Bangalore</option>
-                        <option value="Pune">Pune</option>
-                        <option value="Hyderabad">Hyderabad</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-cta"><i
-                        class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Show Matches</span></button>
-            </form>
+            <?php endforeach; ?>
         </div>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const track = document.querySelector('.hero-slider-track');
+        if (!track) return;
+        
+        setInterval(() => {
+            track.style.transition = 'transform 1s ease-in-out';
+            track.style.transform = 'translateX(-100%)';
+            
+            setTimeout(() => {
+                track.style.transition = 'none';
+                track.appendChild(track.firstElementChild);
+                track.style.transform = 'translateX(0)';
+            }, 1000); 
+        }, 4000); 
+    });
+    </script>
 </section>
 
 <!-- ═══ STATS BAR ═══ -->
@@ -202,134 +205,201 @@ if ($adsQuery) {
 <!-- ═══ STYLE FOR MATCH CARDS ═══ -->
 <style>
     .featured-matches-section {
-        padding: 100px 0;
-        background: linear-gradient(155deg, #fdf2f7 0%, #fce4ee 40%, #f7eaff 100%);
+        padding: 80px 0;
+        background: #fdf2f7; /* Very light pink background to make white cards pop */
     }
-    
+
+    .matches-slider-container {
+        position: relative;
+        width: 100%;
+        margin-top: 30px;
+    }
+
+    .matches-slider-wrapper {
+        overflow: hidden;
+        padding: 10px 5px;
+    }
+
     .matches-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-        gap: 28px;
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 20px; /* Space for scrollbar */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+
+    .matches-grid::-webkit-scrollbar {
+        display: none; /* Safari/Chrome */
     }
 
     .pm-card {
         background: #ffffff;
-        border-radius: 24px;
-        box-shadow: 0 8px 32px rgba(244, 92, 147, 0.10);
-        border: 1px solid rgba(244, 92, 147, 0.15);
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         overflow: hidden;
-        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+        transition: transform 0.3s ease;
         display: flex;
         flex-direction: column;
+        text-decoration: none;
+        flex: 0 0 280px; /* Fixed width for slider items */
+        scroll-snap-align: start;
         position: relative;
     }
 
     .pm-card:hover {
-        transform: translateY(-8px) scale(1.012);
-        box-shadow: 0 24px 56px rgba(244, 92, 147, 0.22);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
 
     .pm-card__img-wrap {
+        width: 100%;
+        height: 280px;
         position: relative;
-        aspect-ratio: 4 / 4.5;
-        overflow: hidden;
-        flex-shrink: 0;
+    }
+
+    .pm-card__badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: #cc2b5e;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        z-index: 10;
+        text-transform: uppercase;
     }
 
     .pm-card__img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.55s ease;
-    }
-
-    .pm-card:hover .pm-card__img {
-        transform: scale(1.07);
-    }
-
-    .pm-card__img-wrap::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to top, rgba(20, 10, 28, 0.72) 0%, transparent 55%);
-        pointer-events: none;
     }
 
     .pm-card__body {
-        padding: 16px 18px 18px;
+        padding: 20px 18px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        flex: 1;
+        gap: 5px;
+        text-align: left;
     }
 
     .pm-card__body-name {
-        font-size: 1rem;
-        font-weight: 700;
+        font-size: 1.15rem;
+        font-weight: 800;
         color: #1a1a2e;
-        line-height: 1.25;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pm-card__status-icon {
+        color: #22c55e;
+        font-size: 0.95rem;
+    }
+
+    .pm-card__body-details {
+        font-size: 0.9rem;
+        color: #888;
+        font-weight: 500;
     }
 
     .pm-card__actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        align-items: center;
     }
 
-    .pm-btn {
+    .pm-btn-view {
+        flex: 1;
+        border: 1.5px solid #cc2b5e;
+        color: #cc2b5e;
+        background: transparent;
         padding: 10px 0;
-        border-radius: 12px;
-        font-size: 0.82rem;
+        border-radius: 30px;
+        font-size: 0.9rem;
         font-weight: 700;
         text-align: center;
-        cursor: pointer;
-        transition: all 0.22s;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .pm-btn-view:hover {
+        background: #cc2b5e;
+        color: white;
+    }
+
+    .pm-btn-heart {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #cc2b5e;
+        color: white;
         border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+        font-size: 1.1rem;
     }
 
-    .pm-btn--outline {
-        background: transparent;
-        border: 1.5px solid #f45c93;
-        color: #f45c93;
+    .pm-btn-heart:hover {
+        transform: scale(1.05);
+        background: #b02250;
     }
 
-    .pm-btn--outline:hover {
-        background: #f45c93;
-        color: #fff;
-        transform: scale(1.03);
-        box-shadow: 0 4px 14px rgba(244, 92, 147, 0.28);
+    /* Slider controls */
+    .slider-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: white;
+        border: 1px solid #eee;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 20;
+        color: #cc2b5e;
+        font-size: 1.1rem;
+        transition: all 0.2s;
+    }
+    
+    .slider-nav-btn:hover {
+        background: #cc2b5e;
+        color: white;
+        border-color: #cc2b5e;
     }
 
-    .pm-btn--solid {
-        background: linear-gradient(135deg, #f45c93, #ff7ab3);
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(244, 92, 147, 0.30);
+    .slider-nav-btn.prev {
+        left: -20px;
     }
 
-    .pm-btn--solid:hover {
-        background: linear-gradient(135deg, #e64680, #f45c93);
-        box-shadow: 0 6px 22px rgba(244, 92, 147, 0.45);
-        transform: scale(1.03);
+    .slider-nav-btn.next {
+        right: -20px;
     }
-
-    @media (max-width: 640px) {
-        .matches-grid {
-            grid-template-columns: 1fr;
-            gap: 18px;
+    
+    @media (max-width: 768px) {
+        .slider-nav-btn {
+            display: none;
         }
-    }
-
-    @media (min-width: 641px) and (max-width: 900px) {
-        .matches-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .pm-card {
+            flex: 0 0 250px;
+        }
+        .pm-card__img-wrap {
+            height: 250px;
         }
     }
 </style>
@@ -337,234 +407,329 @@ if ($adsQuery) {
 <!-- ═══ FEATURED MATCHES ═══ -->
 <section class="featured-matches-section" id="featured-matches">
     <div class="container">
-        <div class="section-header fade-up" style="text-align: center; margin-bottom: 50px;">
-            <div class="section-label">VERIFIED PROFILES ———</div>
-            <h2>Featured Matches</h2>
-            <p style="color: var(--text-secondary); max-width: 600px; margin: 15px auto 0; font-size: 1.05rem;">
-                Explore our handpicked profiles, fully verified and ready to connect.
-            </p>
+        <div class="section-header fade-up" style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <h2 style="font-size: 1.8rem; margin: 0; color: #111; font-family: 'Playfair Display', serif; font-weight: 700;">Matches for you</h2>
+            <a href="matches.php" style="color: #d13b6c; font-weight: 600; text-decoration: none; font-size: 0.9rem;">View all matches &rarr;</a>
         </div>
 
-        <div class="matches-grid">
-            <?php
-            // Fetch verified members (limit to 8)
-            require_once __DIR__ . '/admin/includes/user-storage.php';
-            require_once __DIR__ . '/includes/registration-config.php';
+        <div class="matches-slider-container fade-up">
+            <button class="slider-nav-btn prev" onclick="slideMatches(-1)"><i class="fas fa-chevron-left"></i></button>
+            <div class="matches-slider-wrapper">
+                <div class="matches-grid" id="matchesSlider">
+                    <?php
+                    // Fetch verified members (limit to 10 for slider)
+                    require_once __DIR__ . '/admin/includes/user-storage.php';
+                    require_once __DIR__ . '/includes/registration-config.php';
 
-            $masters = sathi_registration_masters();
+                    $masters = sathi_registration_masters();
 
-            $getLabel = function ($listName, $value) use ($masters) {
-                if (empty($value)) return '—';
-                $list = $masters[$listName] ?? [];
-                if ($listName === 'cities') {
-                    foreach ($masters['geo']['cities'] as $stateCode => $cityList) {
-                        foreach ($cityList as $item) {
-                            if ($item['value'] == $value) return $item['label'];
+                    $getLabel = function ($listName, $value) use ($masters) {
+                        if (empty($value)) return '—';
+                        $list = $masters[$listName] ?? [];
+                        if ($listName === 'cities') {
+                            foreach ($masters['geo']['cities'] as $stateCode => $cityList) {
+                                foreach ($cityList as $item) {
+                                    if ($item['value'] == $value) return $item['label'];
+                                }
+                            }
+                        } elseif ($listName === 'states') {
+                            foreach ($masters['geo']['states'] as $countryCode => $stateList) {
+                                foreach ($stateList as $item) {
+                                    if ($item['value'] == $value) return $item['label'];
+                                }
+                            }
+                        } else {
+                            foreach ($list as $item) {
+                                if ($item['value'] == $value) return $item['label'];
+                            }
                         }
-                    }
-                } elseif ($listName === 'states') {
-                    foreach ($masters['geo']['states'] as $countryCode => $stateList) {
-                        foreach ($stateList as $item) {
-                            if ($item['value'] == $value) return $item['label'];
+                        return ucfirst(str_replace('_', ' ', (string) $value));
+                    };
+
+                    $calculateAge = function ($dob) {
+                        if (empty($dob)) return '—';
+                        try {
+                            $birthDate = new DateTime($dob);
+                            $today = new DateTime();
+                            return $today->diff($birthDate)->y;
+                        } catch (Exception $e) {
+                            return '—';
                         }
+                    };
+
+                    // Fetch Approved Users (limit to 10)
+                    $rawRows = sathi_users_list_by_status('approved', 10);
+                    $profiles = [];
+
+                    foreach ($rawRows as $r) {
+                        $fullName = trim(($r['first_name'] ?? '') . ' ' . ($r['last_name'] ?? ''));
+                        if (empty($fullName)) $fullName = 'Member ' . ($r['id'] ?? '');
+
+                        $age = $calculateAge($r['dob'] ?? '');
+                        $city = $getLabel('cities', $r['city_id'] ?? '');
+                        $locStr = ($age !== '—' ? $age . ' Yrs' : '');
+
+                        $profiles[] = [
+                            'id' => $r['id'],
+                            'name' => $fullName,
+                            'age_str' => $locStr,
+                            'is_new' => true, // Assuming new for visual match
+                            'img' => !empty($r['profile_photo']) 
+                                ? (strpos($r['profile_photo'], 'http') === 0 
+                                    ? $r['profile_photo'] 
+                                    : (file_exists(__DIR__ . '/uploads/profiles/' . $r['profile_photo']) 
+                                        ? 'uploads/profiles/' . $r['profile_photo'] 
+                                        : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=fdf2f7&color=d13b6c&size=500'))
+                                : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=fdf2f7&color=d13b6c&size=500'
+                        ];
                     }
-                } else {
-                    foreach ($list as $item) {
-                        if ($item['value'] == $value) return $item['label'];
-                    }
-                }
-                return ucfirst(str_replace('_', ' ', (string) $value));
-            };
 
-            $calculateAge = function ($dob) {
-                if (empty($dob)) return '—';
-                try {
-                    $birthDate = new DateTime($dob);
-                    $today = new DateTime();
-                    return $today->diff($birthDate)->y . ' yrs';
-                } catch (Exception $e) {
-                    return '—';
-                }
-            };
-
-            // Fetch Approved Users (limit to 8)
-            $rawRows = sathi_users_list_by_status('approved', 8);
-            $profiles = [];
-
-            foreach ($rawRows as $r) {
-                $fullName = trim(($r['first_name'] ?? '') . ' ' . ($r['last_name'] ?? ''));
-                if (empty($fullName)) $fullName = 'Member ' . ($r['id'] ?? '');
-
-                $profiles[] = [
-                    'id' => $r['id'],
-                    'profile_id' => $r['profile_id'] ?? 'N/A',
-                    'name' => $fullName,
-                    'gender' => ucfirst($r['gender'] ?? 'N/A'),
-                    'mobile' => $r['mobile'] ?? 'N/A',
-                    'whatsapp' => $r['whatsapp'] ?? 'N/A',
-                    'joined' => !empty($r['created_at']) ? date('M j, Y', strtotime($r['created_at'])) : 'N/A',
-                    'membership' => ucfirst($r['membership_status'] ?? 'Free'),
-                    'age_val' => $calculateAge($r['dob'] ?? ''),
-                    'dob' => $r['dob'] ?? 'N/A',
-                    'loc' => $getLabel('cities', $r['city_id'] ?? '') . ', ' . $getLabel('states', $r['state_id'] ?? ''),
-                    'edu' => $getLabel('education', $r['education_id'] ?? ''),
-                    'job' => $getLabel('occupation', $r['occupation_id'] ?? ''),
-                    'religion' => $r['religion'] ?? $getLabel('religion', $r['religion_id'] ?? ''),
-                    'mother_tongue' => $r['mother_tongue_val'] ?? $getLabel('mother_tongue', $r['mother_tongue_id'] ?? ''),
-                    'marital_status' => $r['marital_status_val'] ?? $getLabel('marital_status', $r['marital_status_id'] ?? ''),
-                    'which_temple' => $r['which_temple'] ?? 'N/A',
-                    'img' => !empty($r['profile_photo']) 
-                        ? (strpos($r['profile_photo'], 'http') === 0 
-                            ? $r['profile_photo'] 
-                            : (file_exists(__DIR__ . '/uploads/profiles/' . $r['profile_photo']) 
-                                ? 'uploads/profiles/' . $r['profile_photo'] 
-                                : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=f45c93&color=fff&size=500'))
-                        : 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=f45c93&color=fff&size=500',
-                    'digamber' => strtoupper($r['digamber_jain'] ?? 'NO'),
-                    'birth_time' => $r['birth_time'] ?? 'N/A',
-                    'birth_place' => $r['birth_place'] ?? 'N/A',
-                    'star' => $r['star'] ?? 'N/A',
-                    'rasi' => $r['rasi'] ?? 'N/A',
-                    'dosh' => $r['dosh'] ?? 'N/A',
-                    'native_place' => ($r['native_city'] ?? '') . ', ' . ($r['native_state'] ?? '') . ', ' . ($r['native_country'] ?? ''),
-                    'gotra' => $r['gotra'] ?? $getLabel('gotra', $r['caste_id'] ?? ''),
-                    'father_name' => $r['father_name'] ?? 'N/A',
-                    'father_mobile' => $r['father_mobile'] ?? 'N/A',
-                    'father_income' => $r['father_income'] ?? 'N/A',
-                    'mother_name' => $r['mother_name'] ?? 'N/A',
-                    'bro_total' => $r['bro_total'] ?? 0,
-                    'bro_married' => $r['bro_married'] ?? 0,
-                    'sis_total' => $r['sis_total'] ?? 0,
-                    'sis_married' => $r['sis_married'] ?? 0,
-                    'about_text' => $r['about_me'] ?? 'N/A',
-                    'relatives' => $r['relative_details'] ?? 'N/A'
-                ];
-            }
-
-            if (empty($profiles)): ?>
-                <div class="pm-empty" style="grid-column: 1/-1; text-align: center; padding: 60px 20px; background: #fff; border-radius: 24px; border: 1px dashed rgba(244, 92, 147, 0.15); width: 100%;">
-                    <i class="fas fa-heart-broken" style="font-size: 52px; color: var(--pink); margin-bottom: 20px; display: block;"></i>
-                    <h3>No matches found yet</h3>
-                    <p>We're verifying new profiles. Please check back shortly!</p>
-                </div>
-            <?php endif; ?>
-
-            <?php foreach ($profiles as $p): ?>
-                <div class="pm-card fade-up">
-                    <!-- Image -->
-                    <div class="pm-card__img-wrap">
-                        <img class="pm-card__img" src="<?php echo htmlspecialchars($p['img']); ?>"
-                            alt="<?php echo htmlspecialchars($p['name']); ?>" loading="lazy">
-                    </div>
-
-                    <!-- Body -->
-                    <div class="pm-card__body">
-                        <!-- Name only -->
-                        <div class="pm-card__body-name"><?php echo htmlspecialchars($p['name']); ?></div>
-
-                        <!-- Actions -->
-                        <div class="pm-card__actions">
-                            <a href="view-profile.php?id=<?php echo $p['id']; ?>" class="pm-btn pm-btn--outline">
-                                <i class="fas fa-eye"></i> View
-                            </a>
-                            <button class="pm-btn pm-btn--solid"
-                                onclick="openActionModal('interest', '<?php echo rawurlencode(json_encode(['id' => $p['id'], 'name' => $p['name']])); ?>')">
-                                <i class="fas fa-heart"></i> Interest
-                            </button>
+                    if (empty($profiles)): ?>
+                        <div class="pm-empty" style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 20px; width: 100%;">
+                            <i class="fas fa-heart-broken" style="font-size: 42px; color: #fce4ee; margin-bottom: 20px; display: block;"></i>
+                            <p style="color: #666;">No matches found yet.</p>
                         </div>
-                    </div><!-- /.pm-card__body -->
-                </div><!-- /.pm-card -->
-            <?php endforeach; ?>
-        </div>
+                    <?php endif; ?>
 
-        <div style="text-align: center; margin-top: 50px;" class="fade-up">
-            <a href="matches.php" class="btn-outline" style="padding: 14px 40px; font-size: 1rem; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
-                <span>View All Matches</span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </a>
+                    <?php foreach ($profiles as $p): ?>
+                        <div class="pm-card">
+                            <div class="pm-card__img-wrap">
+                                <?php if($p['is_new']): ?>
+                                <span class="pm-card__badge">NEW</span>
+                                <?php endif; ?>
+                                <img class="pm-card__img" src="<?php echo htmlspecialchars($p['img']); ?>"
+                                    alt="<?php echo htmlspecialchars($p['name']); ?>" loading="lazy">
+                            </div>
+                            <div class="pm-card__body">
+                                <div class="pm-card__body-name">
+                                    <?php echo htmlspecialchars($p['name']); ?>
+                                    <i class="fas fa-check-circle pm-card__status-icon"></i>
+                                </div>
+                                <div class="pm-card__body-details"><?php echo htmlspecialchars($p['age_str']); ?></div>
+                                <div class="pm-card__actions">
+                                    <a href="view-profile.php?id=<?php echo $p['id']; ?>" class="pm-btn-view">View Profile</a>
+                                    <button class="pm-btn-heart" onclick="openActionModal('interest', '<?php echo rawurlencode(json_encode(['id' => $p['id'], 'name' => $p['name']])); ?>')"><i class="fas fa-heart"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <button class="slider-nav-btn next" onclick="slideMatches(1)"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 </section>
 
+<script>
+    function slideMatches(direction) {
+        const slider = document.getElementById('matchesSlider');
+        if (slider) {
+            const scrollAmount = 300; // width of card + gap
+            slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+    }
+</script>
 <!-- ═══ LATEST BLOGS ═══ -->
-<section class="latest-blogs" id="blog" style="padding: 100px 0; background: #fdf2f5;">
+<section class="latest-blogs" id="blog" style="padding: 80px 0; background: #ffffff;">
     <div class="container">
-        <div class="section-header fade-up" style="text-align: center; margin-bottom: 50px;">
-            <div class="section-label">LATEST FROM BLOG ———</div>
-            <h2>Relationship & Marriage Insights</h2>
+        <div class="section-header fade-up" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <h2 style="font-size: 1.8rem; margin: 0; color: #111; font-family: 'Playfair Display', serif; font-weight: 700;">From our blog</h2>
+            <a href="blog.php" style="color: #d13b6c; font-weight: 600; text-decoration: none; font-size: 0.9rem;">View all articles &rarr;</a>
         </div>
         
-        <div class="blog-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-            <?php if (empty($latestBlogs)): ?>
-                <div class="blog-topic-card fade-up">
-                    <div style="padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                        <h3><i class="fa-solid fa-lightbulb" aria-hidden="true" style="color: var(--match-pink);"></i> How to choose the right life partner</h3>
-                        <p>Understand compatibility, values, and long-term goals.</p>
-                        <a href="blog.php" style="color: var(--match-pink); text-decoration: none; font-weight: 600; margin-top: 15px; display: inline-block;">Read More →</a>
+        <div class="blog-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+            <?php if (empty($latestBlogs)): 
+                $fakeBlogImages = [
+                    'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=500&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=500&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=500&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=500&h=300&fit=crop'
+                ];
+                $fakeTitles = [
+                    'How to build a strong foundation for marriage',
+                    '5 things to know before your first meeting',
+                    'Understanding your partner\'s love language',
+                    'Planning a wedding that reflects your bond'
+                ];
+                $fakeTags = ['Relationship', 'Tips', 'Guides', 'Lifestyle'];
+                for($i=0; $i<4; $i++): 
+            ?>
+                <div class="blog-card fade-up" style="display: flex; flex-direction: column; background: white; border-radius: 12px; overflow: hidden; border: 1px solid #f0f0f0;">
+                    <div class="blog-img-wrap" style="height: 160px; background: #fdf2f7; border-radius: 12px; margin: 10px; overflow: hidden;">
+                        <img src="<?php echo $fakeBlogImages[$i]; ?>" style="width: 100%; height: 100%; object-fit: cover;" alt="Blog image">
+                    </div>
+                    <div style="padding: 0 15px 15px;">
+                        <span style="display: inline-block; padding: 4px 10px; background: #fce4ee; color: #d13b6c; font-size: 0.7rem; font-weight: 600; border-radius: 20px; margin-bottom: 10px;"><?php echo $fakeTags[$i]; ?></span>
+                        <h3 style="font-size: 1rem; margin-bottom: 10px; line-height: 1.4; font-weight: 700;"><?php echo $fakeTitles[$i]; ?></h3>
+                        <div style="font-size: 0.75rem; color: #888;">May <?php echo 20 - $i; ?>, 2024</div>
                     </div>
                 </div>
-                <div class="blog-topic-card fade-up">
-                    <div style="padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                        <h3><i class="fa-solid fa-comments" aria-hidden="true" style="color: var(--match-pink);"></i> First conversation tips</h3>
-                        <p>Make a great first impression with confidence.</p>
-                        <a href="blog.php" style="color: var(--match-pink); text-decoration: none; font-weight: 600; margin-top: 15px; display: inline-block;">Read More →</a>
-                    </div>
-                </div>
-                <div class="blog-topic-card fade-up">
-                    <div style="padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                        <h3><i class="fa-solid fa-heart" aria-hidden="true" style="color: var(--match-pink);"></i> Arranged vs love marriage</h3>
-                        <p>Finding the balance between tradition and choices.</p>
-                        <a href="blog.php" style="color: var(--match-pink); text-decoration: none; font-weight: 600; margin-top: 15px; display: inline-block;">Read More →</a>
-                    </div>
-                </div>
+                <?php endfor; ?>
             <?php else: ?>
                 <?php foreach ($latestBlogs as $b): 
                     $blogImg = !empty($b['image']) ? $b['image'] : 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000';
                     $excerpt = substr(strip_tags($b['content']), 0, 100) . '...';
                 ?>
-                <div class="blog-card fade-up" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
-                    <div class="blog-img-wrap" style="height: 200px; overflow: hidden;">
+                <div class="blog-card fade-up" style="display: flex; flex-direction: column; background: white; border-radius: 12px; overflow: hidden; border: 1px solid #f0f0f0;">
+                    <div class="blog-img-wrap" style="height: 160px; border-radius: 12px; margin: 10px; overflow: hidden; background: #fdf2f7;">
                         <img src="<?php echo htmlspecialchars($blogImg); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
-                    <div style="padding: 25px;">
-                        <div style="font-size: 0.8rem; color: #888; margin-bottom: 10px;"><?php echo date('M j, Y', strtotime($b['created_at'])); ?></div>
-                        <h3 style="font-size: 1.25rem; margin-bottom: 15px; line-height: 1.4;"><?php echo htmlspecialchars($b['title']); ?></h3>
-                        <p style="color: #666; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;"><?php echo htmlspecialchars($excerpt); ?></p>
-                        <a href="blog.php?slug=<?php echo $b['slug']; ?>" style="color: var(--match-pink); text-decoration: none; font-weight: 600; display: inline-block;">Read More →</a>
+                    <div style="padding: 0 15px 15px;">
+                        <span style="display: inline-block; padding: 4px 10px; background: #fce4ee; color: #d13b6c; font-size: 0.7rem; font-weight: 600; border-radius: 20px; margin-bottom: 10px;">Tips</span>
+                        <h3 style="font-size: 1rem; margin-bottom: 10px; line-height: 1.4; font-weight: 700;"><?php echo htmlspecialchars($b['title']); ?></h3>
+                        <div style="font-size: 0.75rem; color: #888;"><?php echo date('M j, Y', strtotime($b['created_at'])); ?></div>
                     </div>
                 </div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
+    </div>
+</section>
+
+<!-- ═══ TESTIMONIAL / SUCCESS STORIES ═══ -->
+<section class="testimonial" id="stories" style="padding: 80px 0; background: #ffffff;">
+    <div class="container">
+        <div class="section-header fade-up" style="position: relative; margin-bottom: 40px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <h2 style="font-size: 1.8rem; margin: 0; color: #111; font-family: 'Playfair Display', serif; font-weight: 700;">Success stories</h2>
+            <a href="success-stories.php" style="color: #d13b6c; font-weight: 600; text-decoration: none; font-size: 0.9rem; position: absolute; right: 0; bottom: 15px;">View all stories &rarr;</a>
+        </div>
+
+        <div class="stories-slider-container fade-up" style="position: relative; width: 100%;">
+            <div style="overflow: hidden; padding: 10px 5px;">
+                <div id="storiesSlider" style="display: flex; gap: 30px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none;">
+                    <style>
+                        #storiesSlider::-webkit-scrollbar { display: none; }
+                    </style>
+                    <?php
+                    // Merge dynamic testimonials with fake ones to ensure we have enough for a slider
+                    $allStories = $dynamicTestimonials ?? [];
+                    
+                    $fakeStories = [
+                        [
+                            'name' => 'Ankit & Priya',
+                            'quote' => '"ShaadikiBaat helped us find each other and start our beautiful journey together. The matching algorithm is truly magical!"',
+                            'badge' => 'Married on Feb 2024',
+                            'img' => 'https://images.unsplash.com/photo-1543165365-07232ed12fad?w=300&h=400&fit=crop'
+                        ],
+                        [
+                            'name' => 'Rohan & Sneha',
+                            'quote' => '"We connected, talked and realized we were meant to be. Thank you ShaadikiBaat for making this happen!"',
+                            'badge' => 'Married on Dec 2023',
+                            'img' => 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=300&h=400&fit=crop'
+                        ],
+                        [
+                            'name' => 'Karan & Neha',
+                            'quote' => '"The best decision we made was to trust ShaadikiBaat with our future. Couldn\'t have asked for a better life partner."',
+                            'badge' => 'Married on Aug 2023',
+                            'img' => 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300&h=400&fit=crop'
+                        ],
+                        [
+                            'name' => 'Rahul & Meera',
+                            'quote' => '"From our first conversation, everything just clicked. The platform made it so easy to find verified profiles."',
+                            'badge' => 'Married on Jun 2023',
+                            'img' => 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=400&fit=crop'
+                        ]
+                    ];
+                    
+                    // If we have less than 4 real stories, append fake ones
+                    if (count($allStories) < 4) {
+                        foreach ($fakeStories as $fs) {
+                            if (count($allStories) >= 6) break;
+                            $allStories[] = $fs;
+                        }
+                    }
+
+                    foreach ($allStories as $st):
+                    ?>
+                    <div class="story-card-item" style="display: flex; gap: 20px; background: white; border: 1px solid #eee; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); flex: 0 0 calc(50% - 15px); scroll-snap-align: start; min-width: 400px;">
+                        <div style="width: 120px; height: 140px; background: #fdf2f7; border-radius: 8px; flex-shrink: 0; overflow: hidden;">
+                            <img src="<?php echo htmlspecialchars($st['img']); ?>" alt="Couple" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; justify-content: center;">
+                            <p style="font-size: 0.95rem; line-height: 1.5; color: #333; margin-bottom: 15px; font-style: italic;">
+                                <?php echo $st['quote']; ?>
+                            </p>
+                            <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 5px;">- <?php echo htmlspecialchars($st['name']); ?></div>
+                            <div style="font-size: 0.8rem; color: #888;"><?php echo htmlspecialchars($st['badge']); ?></div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
         
-        <div style="text-align: center; margin-top: 50px;">
-            <a href="blog.php" class="btn-outline">View All Articles</a>
+        <div id="storiesDots" style="text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 8px;">
+            <!-- Dots populated via JS -->
         </div>
     </div>
 </section>
 
-<!-- ═══ TESTIMONIAL ═══ -->
-<section class="testimonial" id="stories">
-    <div class="container">
-        <h2>What Our Couples Say</h2>
-        <div class="testimonial-card fade-up" id="testimonialCard">
-            <img src="assets/testimonial_couple.png" alt="Riya & Aditya" class="testimonial-photo" loading="lazy">
-            <div class="testimonial-content">
-                <div class="testimonial-name">Riya &amp; Aditya</div>
-                <div class="testimonial-loc">Mumbai to Pune 📍</div>
-                <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-quote">"Shadikibaat made our journey so easy! We found each other through their AI
-                    recommendations and it was love at first chat. The verification process made us feel safe and
-                    confident. Forever grateful."</p>
-                <span class="testimonial-badge">Married Nov 2024</span>
-            </div>
-        </div>
-        <div class="testimonial-nav">
-            <button aria-label="Previous" onclick="changeTestimonial(-1)">❮</button>
-            <button aria-label="Next" onclick="changeTestimonial(1)">❯</button>
-        </div>
-    </div>
-</section>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.getElementById('storiesSlider');
+        const dotsContainer = document.getElementById('storiesDots');
+        
+        if (slider && dotsContainer) {
+            const storyCards = Array.from(slider.querySelectorAll('.story-card-item'));
+            if(storyCards.length === 0) return;
+            
+            // Create dots
+            storyCards.forEach((_, index) => {
+                const dot = document.createElement('span');
+                dot.style.width = '10px';
+                dot.style.height = '10px';
+                dot.style.borderRadius = '50%';
+                dot.style.display = 'inline-block';
+                dot.style.cursor = 'pointer';
+                dot.style.background = index === 0 ? '#d13b6c' : '#f0f0f0';
+                dot.style.transition = 'background 0.3s ease';
+                
+                dot.addEventListener('click', () => {
+                    const scrollTarget = index * (storyCards[0].offsetWidth + 30);
+                    slider.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+                });
+                
+                dotsContainer.appendChild(dot);
+            });
+            
+            // Update dots on scroll
+            slider.addEventListener('scroll', () => {
+                const cardWidth = storyCards[0].offsetWidth + 30; // gap is 30
+                const activeIndex = Math.round(slider.scrollLeft / cardWidth);
+                
+                Array.from(dotsContainer.children).forEach((dot, index) => {
+                    dot.style.background = index === activeIndex ? '#d13b6c' : '#f0f0f0';
+                });
+            });
+            
+            // Auto scroll logic
+            let autoScrollInterval = setInterval(autoScroll, 3500);
+            
+            function autoScroll() {
+                const cardWidth = storyCards[0].offsetWidth + 30;
+                const maxScroll = slider.scrollWidth - slider.clientWidth;
+                
+                if (slider.scrollLeft >= maxScroll - 10) {
+                    // Loop back to start smoothly
+                    slider.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    // Scroll to next card
+                    slider.scrollBy({ left: cardWidth, behavior: 'smooth' });
+                }
+            }
+            
+            // Pause on hover
+            slider.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+            slider.addEventListener('mouseleave', () => {
+                autoScrollInterval = setInterval(autoScroll, 3500);
+            });
+            dotsContainer.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+            dotsContainer.addEventListener('mouseleave', () => {
+                autoScrollInterval = setInterval(autoScroll, 3500);
+            });
+        }
+    });
+</script>
 
 <script>
     /* ── UI Logic ── */

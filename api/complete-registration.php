@@ -49,7 +49,7 @@ $passHash = password_hash($password, PASSWORD_BCRYPT);
 $profileId = 'SKB' . strtoupper(bin2hex(random_bytes(3)));
 $gender = $_POST['gender'] ?? 'other';
 $dob = !empty($_POST['birth_date']) ? $_POST['birth_date'] : null;
-$status = 'pending';
+$status = 'approved';
 
 $height = trim($_POST['height'] ?? '');
 $weight = trim($_POST['weight'] ?? '');
@@ -204,7 +204,7 @@ try {
     $_SESSION['sathi_user_email'] = $email;
     $_SESSION['sathi_user_name'] = $firstName . ' ' . $lastName;
     $_SESSION['sathi_registration_complete'] = true;
-    $_SESSION['sathi_registration_status'] = 'pending';
+    $_SESSION['sathi_registration_status'] = 'approved';
 
     json_response(true, 'Registration Successful');
 
