@@ -72,53 +72,61 @@ $calculateAge = function ($dob) {
 };
 
 // Build query with ALL working filters
-$whereClauses = ["status = 'approved'"];
+$whereClauses = ["u.status = 'approved'"];
 
 if ($gender !== '') {
-    $whereClauses[] = "gender = '" . $db->real_escape_string($gender) . "'";
+    $whereClauses[] = "u.gender = '" . $db->real_escape_string($gender) . "'";
 }
 if ($marital_status !== '') {
-    $whereClauses[] = "marital_status_id = " . (int)$marital_status;
+    $whereClauses[] = "u.marital_status_id = " . (int)$marital_status;
 }
 if ($digamber_jain !== '') {
-    $whereClauses[] = "digamber_jain = '" . $db->real_escape_string($digamber_jain) . "'";
+    $whereClauses[] = "c.are_you_digamber_jain = '" . $db->real_escape_string($digamber_jain) . "'";
 }
 if ($gotra !== '') {
-    $whereClauses[] = "gotra LIKE '%" . $db->real_escape_string($gotra) . "%'";
+    $gotEsc = $db->real_escape_string($gotra);
+    $whereClauses[] = "(u.gotra LIKE '%$gotEsc%' OR c.gotra LIKE '%$gotEsc%')";
 }
 if ($occupation_filter !== '') {
-    $whereClauses[] = "occupation_id = " . (int)$occupation_filter;
+    $whereClauses[] = "u.occupation_id = " . (int)$occupation_filter;
 }
 if ($education_filter !== '') {
-    $whereClauses[] = "education_id = " . (int)$education_filter;
+    $whereClauses[] = "u.education_id = " . (int)$education_filter;
 }
 if ($location !== '') {
     $locEsc = $db->real_escape_string($location);
-    $whereClauses[] = "(birth_place LIKE '%$locEsc%' OR native_place LIKE '%$locEsc%' OR permanent_address LIKE '%$locEsc%' OR current_address LIKE '%$locEsc%')";
+    $whereClauses[] = "(u.birth_place LIKE '%$locEsc%' OR u.native_place LIKE '%$locEsc%' OR u.permanent_address LIKE '%$locEsc%' OR u.current_address LIKE '%$locEsc%' OR c.birth_place LIKE '%$locEsc%' OR c.native LIKE '%$locEsc%' OR c.permanent_address LIKE '%$locEsc%' OR c.candidate_current_address LIKE '%$locEsc%')";
 }
 if ($search !== '') {
     $searchEsc = $db->real_escape_string($search);
-    $whereClauses[] = "(first_name LIKE '%$searchEsc%' OR last_name LIKE '%$searchEsc%' OR gotra LIKE '%$searchEsc%' OR birth_place LIKE '%$searchEsc%' OR native_place LIKE '%$searchEsc%' OR permanent_address LIKE '%$searchEsc%' OR current_address LIKE '%$searchEsc%' OR profile_id LIKE '%$searchEsc%')";
+    $whereClauses[] = "(u.first_name LIKE '%$searchEsc%' OR u.last_name LIKE '%$searchEsc%' OR u.gotra LIKE '%$searchEsc%' OR c.gotra LIKE '%$searchEsc%' OR u.profile_id LIKE '%$searchEsc%')";
 }
 
 // Age filter (based on DOB)
 if ($age_max !== '' && is_numeric($age_max)) {
     $minDob = date('Y-m-d', strtotime("-{$age_max} years"));
-    $whereClauses[] = "dob >= '$minDob'";
+    $whereClauses[] = "u.dob >= '$minDob'";
 }
 
 // Height filter (cm)
 if ($height_filter !== '' && is_numeric($height_filter)) {
-    $whereClauses[] = "height_cm = " . (int)$height_filter;
+    $whereClauses[] = "u.height_cm = " . (int)$height_filter;
 }
 
 // Weight filter (kg)
 if ($weight_filter !== '' && is_numeric($weight_filter)) {
-    $whereClauses[] = "weight_kg = " . (int)$weight_filter;
+    $whereClauses[] = "u.weight_kg = " . (int)$weight_filter;
 }
 
 $whereSql = implode(" AND ", $whereClauses);
-$query = "SELECT * FROM users WHERE $whereSql ORDER BY created_at DESC LIMIT 300";
+$query = "SELECT u.*, 
+                COALESCE(occ.name, c.candidate_occupation) as occupation_val,
+                c.birth_place as fallback_city,
+                c.candidate_current_address as fallback_address
+          FROM users u
+          LEFT JOIN candidates c ON u.email = c.email_address COLLATE utf8mb4_unicode_ci
+          LEFT JOIN occupations occ ON u.occupation_id = occ.id
+          WHERE $whereSql ORDER BY u.created_at DESC LIMIT 300";
 $queryResult = $db->query($query);
 
 $rawRows = [];
@@ -135,16 +143,41 @@ foreach ($rawRows as $r) {
     if (empty($fullName)) $fullName = 'Member ' . ($r['id'] ?? '');
 
     $city = $getLabel('cities', $r['city_id'] ?? '');
-    $state = $getLabel('states', $r['state_id'] ?? '');
     $locParts = [];
-    if (!empty($city) && $city !== '—') $locParts[] = $city;
-    if (!empty($state) && $state !== '—') $locParts[] = $state;
+    if (!empty($city) && $city !== '—') {
+        $locParts[] = $city;
+        $locParts[] = 'India';
+    }
+    
+    if (empty($locParts)) {
+        if (!empty($r['fallback_city'])) {
+            $fcity = trim($r['fallback_city']);
+            if (strpos($fcity, ',') !== false) {
+                $parts = array_map('trim', explode(',', $fcity));
+                $locParts[] = $parts[0];
+            } else {
+                $locParts[] = $fcity;
+            }
+            $locParts[] = 'India';
+        } elseif (!empty($r['fallback_address'])) {
+            $parts = array_map('trim', explode(',', $r['fallback_address']));
+            $c = count($parts);
+            if ($c >= 3) {
+                $locParts[] = $parts[$c-3];
+                $locParts[] = $parts[$c-1];
+            } elseif ($c == 2) {
+                $locParts = $parts;
+            } else {
+                $locParts[] = $r['fallback_address'];
+            }
+        }
+    }
     $locStr = implode(', ', $locParts);
 
-    $job = $getLabel('occupation', $r['occupation_id'] ?? '');
+    $job = !empty($r['occupation_val']) ? $r['occupation_val'] : $getLabel('occupation', $r['occupation_id'] ?? '');
     $age = $calculateAge($r['dob'] ?? '');
     $metaParts = [];
-    if (!empty($age) && $age !== '—') $metaParts[] = $age . ' Yrs';
+    if (!empty($age) && $age !== '—') $metaParts[] = $age;
     if (!empty($job) && $job !== '—') $metaParts[] = $job;
     $metaStr = implode(' · ', $metaParts);
 
@@ -470,19 +503,6 @@ $totalMatches = count($profiles);
         transition: transform 0.5s ease;
     }
     .matri-card:hover .matri-card-img img { transform: scale(1.05); }
-    .matri-card-new {
-        position: absolute;
-        top: 12px; left: 12px;
-        background: var(--m-rose-dark);
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 4px 12px;
-        border-radius: 20px;
-        z-index: 5;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
 
     /* Card body */
     .matri-card-body {
@@ -744,9 +764,6 @@ $totalMatches = count($profiles);
                         <div class="matri-card">
                             <div class="matri-card-img">
                                 <img src="<?php echo $dp['img']; ?>" alt="<?php echo $dp['name']; ?>" loading="lazy">
-                                <?php if ($dp['new']): ?>
-                                    <span class="matri-card-new">New</span>
-                                <?php endif; ?>
                             </div>
                             <div class="matri-card-body">
                                 <div class="matri-card-name-row">
@@ -768,9 +785,6 @@ $totalMatches = count($profiles);
                         <div class="matri-card">
                             <div class="matri-card-img">
                                 <img src="<?php echo htmlspecialchars($p['img']); ?>" alt="<?php echo htmlspecialchars($p['name']); ?>" loading="lazy">
-                                <?php if ($i < 2): ?>
-                                    <span class="matri-card-new">New</span>
-                                <?php endif; ?>
                             </div>
                             <div class="matri-card-body">
                                 <div class="matri-card-name-row">

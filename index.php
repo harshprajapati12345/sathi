@@ -462,18 +462,56 @@ if ($adsQuery) {
                     $profiles = [];
 
                     foreach ($rawRows as $r) {
-                        $fullName = trim(($r['first_name'] ?? '') . ' ' . ($r['last_name'] ?? ''));
-                        if (empty($fullName)) $fullName = 'Member ' . ($r['id'] ?? '');
+                        $detailedUser = sathi_user_repo_find_by_id($r['id']);
+                        if (!$detailedUser) continue;
 
-                        $age = $calculateAge($r['dob'] ?? '');
-                        $city = $getLabel('cities', $r['city_id'] ?? '');
-                        $locStr = ($age !== '—' ? $age . ' Yrs' : '');
+                        $fullName = trim(($detailedUser['first_name'] ?? '') . ' ' . ($detailedUser['last_name'] ?? ''));
+                        if (empty($fullName)) $fullName = 'Member ' . ($detailedUser['id'] ?? '');
+
+                        $age = $calculateAge($detailedUser['dob'] ?? '');
+                        $job = $detailedUser['occupation_val'] ?? '';
+                        
+                        $metaParts = [];
+                        if (!empty($age) && $age !== '—') $metaParts[] = $age;
+                        if (!empty($job) && $job !== '—') $metaParts[] = $job;
+                        $metaStr = implode(' · ', $metaParts);
+
+                        $locParts = [];
+                        if (!empty($detailedUser['city_val']) && $detailedUser['city_val'] !== '—') {
+                            $locParts[] = $detailedUser['city_val'];
+                            $locParts[] = 'India';
+                        }
+                        
+                        if (empty($locParts)) {
+                            if (!empty($detailedUser['birth_place'])) {
+                                $fcity = trim($detailedUser['birth_place']);
+                                if (strpos($fcity, ',') !== false) {
+                                    $parts = array_map('trim', explode(',', $fcity));
+                                    $locParts[] = $parts[0];
+                                } else {
+                                    $locParts[] = $fcity;
+                                }
+                                $locParts[] = 'India';
+                            } elseif (!empty($detailedUser['current_address'])) {
+                                $parts = array_map('trim', explode(',', $detailedUser['current_address']));
+                                $c = count($parts);
+                                if ($c >= 3) {
+                                    $locParts[] = $parts[$c-3];
+                                    $locParts[] = $parts[$c-1];
+                                } elseif ($c == 2) {
+                                    $locParts = $parts;
+                                } else {
+                                    $locParts[] = $detailedUser['current_address'];
+                                }
+                            }
+                        }
+                        $realLocStr = implode(', ', $locParts);
 
                         $profiles[] = [
                             'id' => $r['id'],
                             'name' => $fullName,
-                            'age_str' => $locStr,
-                            'is_new' => true, // Assuming new for visual match
+                            'meta_str' => $metaStr,
+                            'loc_str' => $realLocStr,
                             'img' => !empty($r['profile_photo']) 
                                 ? (strpos($r['profile_photo'], 'http') === 0 
                                     ? $r['profile_photo'] 
@@ -494,9 +532,6 @@ if ($adsQuery) {
                     <?php foreach ($profiles as $p): ?>
                         <div class="pm-card">
                             <div class="pm-card__img-wrap">
-                                <?php if($p['is_new']): ?>
-                                <span class="pm-card__badge">NEW</span>
-                                <?php endif; ?>
                                 <img class="pm-card__img" src="<?php echo htmlspecialchars($p['img']); ?>"
                                     alt="<?php echo htmlspecialchars($p['name']); ?>" loading="lazy">
                             </div>
@@ -505,7 +540,15 @@ if ($adsQuery) {
                                     <?php echo htmlspecialchars($p['name']); ?>
                                     <i class="fas fa-check-circle pm-card__status-icon"></i>
                                 </div>
-                                <div class="pm-card__body-details"><?php echo htmlspecialchars($p['age_str']); ?></div>
+                                <?php if (!empty($p['meta_str'])): ?>
+                                    <div class="pm-card__body-details"><?php echo htmlspecialchars($p['meta_str']); ?></div>
+                                <?php endif; ?>
+                                <?php if (!empty($p['loc_str'])): ?>
+                                    <div class="pm-card__body-details" style="display: flex; align-items: center; gap: 4px; margin-bottom: 5px;">
+                                        <i class="fas fa-map-marker-alt" style="font-size: 11px; color: #b0b0c0;"></i> 
+                                        <?php echo htmlspecialchars($p['loc_str']); ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="pm-card__actions">
                                     <a href="view-profile.php?id=<?php echo $p['id']; ?>" class="pm-btn-view">View Profile</a>
                                     <button class="pm-btn-heart" onclick="openActionModal('interest', '<?php echo rawurlencode(json_encode(['id' => $p['id'], 'name' => $p['name']])); ?>')"><i class="fas fa-heart"></i></button>
