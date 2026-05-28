@@ -3,7 +3,7 @@ require_once __DIR__ . '/session_init.php';
 
 // If not logged in, go to register
 if (empty($_SESSION['sathi_user_id'])) {
-    header('Location: register.php');
+    header('Location: eligibility.php');
     exit;
 }
 
@@ -66,7 +66,7 @@ include 'header.php';
             </p>
             <div class="reg-actions" style="justify-content: center; gap: 15px; margin-top: 30px; padding-top: 0; border-top: none;">
                 <a href="mailto:support@shadikibaat.com" class="reg-btn reg-btn-primary" style="text-decoration: none; display: inline-block;">Contact Support</a>
-                <a href="register.php" class="reg-btn reg-btn-secondary" style="text-decoration: none; display: inline-block;">Re-Register</a>
+                <a href="eligibility.php" class="reg-btn reg-btn-secondary" style="text-decoration: none; display: inline-block;">Re-Register</a>
             </div>
         </div>
     </div>

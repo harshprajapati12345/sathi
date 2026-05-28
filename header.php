@@ -91,7 +91,7 @@ if ($sathiRegistrationStatus === 'pending') {
                 <a href="logout.php" style="color: var(--pink); font-weight: 600;">Logout</a>
               <?php else: ?>
                 <a href="login.php">Login</a>
-                <a href="register.php" style="color: var(--pink); font-weight: 600;">Sign Up</a>
+                <a href="eligibility.php" style="color: var(--pink); font-weight: 600;">Sign Up</a>
               <?php endif; ?>
             </li>
           </ul>
@@ -104,7 +104,7 @@ if ($sathiRegistrationStatus === 'pending') {
           <a href="logout.php" class="btn-login" style="margin-left:8px;text-decoration:none;">Logout</a>
         <?php else: ?>
           <button type="button" class="btn-login" onclick="location.href='login.php'">Login</button>
-          <button type="button" class="btn-signup" onclick="location.href='register.php'">Sign Up</button>
+          <button type="button" class="btn-signup" onclick="location.href='eligibility.php'">Sign Up</button>
         <?php endif; ?>
         <button class="hamburger" id="menuToggle" aria-label="Open menu" aria-expanded="false">
           <span></span><span></span><span></span>

@@ -758,7 +758,7 @@ include 'header.php';
                 Shadikibaat connects genuine people seeking lifelong companionship, combining traditional values with modern matchmaking.
             </p>
             <div class="bl-actions">
-                <a href="register.php" class="bl-btn-primary">
+                <a href="eligibility.php" class="bl-btn-primary">
                     <i class="fa-solid fa-user-plus" style="font-size:0.8rem;"></i>
                     Create Profile
                 </a>
@@ -888,7 +888,7 @@ include 'header.php';
             <h2 class="anim-fade-up">Ready to find your life partner?</h2>
             <p class="tagline anim-fade-up delay-1" lang="hi">जहां रिश्ते बनते हैं दिल से ❤️</p>
             <div class="anim-fade-up delay-2">
-                <a href="register.php" class="cta-btn-primary">
+                <a href="eligibility.php" class="cta-btn-primary">
                     <i class="fa-solid fa-arrow-right"></i>
                     Create Free Profile
                 </a>

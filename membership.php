@@ -50,7 +50,7 @@ include 'header.php';
         </div>
 
         <div class="page-cta-wrap">
-            <a href="register.php" class="page-cta">Upgrade now &amp; find your perfect match</a>
+            <a href="eligibility.php" class="page-cta">Upgrade now &amp; find your perfect match</a>
         </div>
     </div>
 </main>

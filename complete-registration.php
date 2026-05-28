@@ -101,40 +101,6 @@ $hobbies = isset($_POST['hobby']) && is_array($_POST['hobby']) ? array_map('strv
 
 $extra = [
     'digamber' => (string) ($_POST['digamber'] ?? ''),
-    'birth_time' => (string) ($_POST['birth_time'] ?? ''),
-    'birth_place' => (string) ($_POST['birth_place'] ?? ''),
-    'birth_country_id' => $_POST['birth_country'] ?? '',
-    'birth_state_id' => $_POST['birth_state'] ?? '',
-    'birth_city_id' => $_POST['birth_city'] ?? '',
-    'native_place' => (string) ($_POST['native_place'] ?? ''),
-    'star' => (string) ($_POST['star'] ?? ''),
-    'rasi' => (string) ($_POST['rasi'] ?? ''),
-    'dosh' => (string) ($_POST['dosh'] ?? ''),
-    'addr_perm' => (string) ($_POST['addr_perm'] ?? ''),
-    'addr_curr' => (string) ($_POST['addr_curr'] ?? ''),
-    'hobbies' => $hobbies,
-    'firm_name' => (string) ($_POST['firm_name'] ?? ''),
-    'designation' => (string) ($_POST['designation'] ?? ''),
-    'father' => [
-        'name' => (string) ($_POST['father_name'] ?? ''),
-        'mobile' => (string) ($_POST['father_mobile'] ?? ''),
-        'income' => (string) ($_POST['father_income'] ?? ''),
-        'occ' => (string) ($_POST['father_occ'] ?? ''),
-    ],
-    'mother' => [
-        'name' => (string) ($_POST['mother_name'] ?? ''),
-        'mobile' => (string) ($_POST['mother_mobile'] ?? ''),
-        'income' => (string) ($_POST['mother_income'] ?? ''),
-        'occ' => (string) ($_POST['mother_occ'] ?? ''),
-    ],
-    'siblings' => [
-        'bro_total' => (int) ($_POST['bro_total'] ?? 0),
-        'bro_married' => (int) ($_POST['bro_married'] ?? 0),
-        'bro_unmarried' => (int) ($_POST['bro_unmarried'] ?? 0),
-        'sis_total' => (int) ($_POST['sis_total'] ?? 0),
-        'sis_married' => (int) ($_POST['sis_married'] ?? 0),
-        'sis_unmarried' => (int) ($_POST['sis_unmarried'] ?? 0),
-    ],
     'payment' => [
         'method' => (string) ($_POST['pay_method'] ?? ''),
         'agree' => !empty($_POST['pay_agree']),
@@ -144,6 +110,32 @@ $extra = [
         'payment_screenshot' => '',
     ],
 ];
+
+// Physical attributes mapping
+$heightStr = (string) ($_POST['height'] ?? '');
+$heightCm = 0;
+// Example: "5 ft 6 inch" -> convert to cm
+if (preg_match('/(\d+)\s*ft\s*(?:(\d+)\s*inch)?/i', $heightStr, $m)) {
+    $ft = (int)$m[1];
+    $in = isset($m[2]) ? (int)$m[2] : 0;
+    $heightCm = (int) round(($ft * 12 + $in) * 2.54);
+}
+$weightKg = (int) ($_POST['weight'] ?? 0);
+$complexion = (string) ($_POST['complexion'] ?? ''); // Used as Pincode
+
+$mandirId = $toInt($_POST['mandir'] ?? null);
+$subcastId = $toInt($_POST['subcast'] ?? null);
+$gotraId = $toInt($_POST['gotra'] ?? null);
+$bloodGroup = (string) ($_POST['blood_group'] ?? ''); // Handicapped field
+$languagesKnownOther = (string) ($_POST['languages_known_other'] ?? '');
+$relativeDetails = (string) ($_POST['relative_details'] ?? ''); // Preference
+
+$ref1Name = (string) ($_POST['ref1_name'] ?? '');
+$ref1Mobile = (string) ($_POST['ref1_mobile'] ?? '');
+$ref1Rel = (string) ($_POST['ref1_relation'] ?? '');
+$ref2Name = (string) ($_POST['ref2_name'] ?? '');
+$ref2Mobile = (string) ($_POST['ref2_mobile'] ?? '');
+$ref2Rel = (string) ($_POST['ref2_relation'] ?? '');
 
 $uploadDirBase = __DIR__ . '/uploads/profiles';
 
@@ -224,12 +216,20 @@ $sql = 'INSERT INTO users (
     religion_id, caste_id, mother_tongue_id, marital_status_id,
     education_id, occupation_id, income_id,
     country_id, state_id, city_id,
+    mandir_id, subcast_id, gotra_id,
+    height_cm, weight_kg, complexion, blood_group,
+    reference_person_1_name, reference_person_1_mobile, reference_person_1_relation,
+    reference_person_2_name, reference_person_2_mobile, reference_person_2_relation,
     about_me, profile_photo, status, membership_status
 ) VALUES (
     :profile_id, :first_name, :last_name, :email, :mobile, :password_hash, :gender, :dob,
     :religion_id, :caste_id, :mother_tongue_id, :marital_status_id,
     :education_id, :occupation_id, :income_id,
     :country_id, :state_id, :city_id,
+    :mandir_id, :subcast_id, :gotra_id,
+    :height_cm, :weight_kg, :complexion, :blood_group,
+    :ref1_name, :ref1_mobile, :ref1_relation,
+    :ref2_name, :ref2_mobile, :ref2_relation,
     :about_me, :profile_photo, :status, :membership_status
 )';
 
@@ -254,6 +254,19 @@ try {
         ':country_id' => $countryId,
         ':state_id' => $stateId,
         ':city_id' => $cityId,
+        ':mandir_id' => $mandirId,
+        ':subcast_id' => $subcastId,
+        ':gotra_id' => $gotraId,
+        ':height_cm' => $heightCm,
+        ':weight_kg' => $weightKg,
+        ':complexion' => $complexion,
+        ':blood_group' => $bloodGroup,
+        ':ref1_name' => $ref1Name,
+        ':ref1_mobile' => $ref1Mobile,
+        ':ref1_relation' => $ref1Rel,
+        ':ref2_name' => $ref2Name,
+        ':ref2_mobile' => $ref2Mobile,
+        ':ref2_relation' => $ref2Rel,
         ':about_me' => $aboutJson,
         ':profile_photo' => $photoRel,
         ':status' => 'pending',
@@ -273,6 +286,36 @@ try {
 if ($photoRel !== '') {
     $p = $pdo->prepare('INSERT INTO user_photos (user_id, photo, is_primary, approved, sort_order) VALUES (?,?,1,0,0)');
     $p->execute([$newId, $photoRel]);
+}
+
+// Insert related data
+$pdo->prepare('INSERT INTO user_addresses (user_id, permanent_address, current_address) VALUES (?, ?, ?)')
+    ->execute([$newId, (string)($_POST['addr_perm'] ?? ''), (string)($_POST['addr_curr'] ?? '')]);
+
+$pdo->prepare('INSERT INTO user_family_details (user_id, father_name, father_mobile, father_income, father_occupation, mother_name, mother_mobile, mother_income, mother_occupation, brothers, brothers_married, brothers_unmarried, sisters, sisters_married, sisters_unmarried) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([
+        $newId,
+        (string)($_POST['father_name'] ?? ''), (string)($_POST['father_mobile'] ?? ''), (string)($_POST['father_income'] ?? ''), (string)($_POST['father_occ'] ?? ''),
+        (string)($_POST['mother_name'] ?? ''), (string)($_POST['mother_mobile'] ?? ''), (string)($_POST['mother_income'] ?? ''), (string)($_POST['mother_occ'] ?? ''),
+        (int)($_POST['bro_total'] ?? 0), (int)($_POST['bro_married'] ?? 0), (int)($_POST['bro_unmarried'] ?? 0),
+        (int)($_POST['sis_total'] ?? 0), (int)($_POST['sis_married'] ?? 0), (int)($_POST['sis_unmarried'] ?? 0)
+    ]);
+
+$pdo->prepare('INSERT INTO user_work_details (user_id, occupation_firm, occupation_designation, annual_income) VALUES (?, ?, ?, ?)')
+    ->execute([$newId, (string)($_POST['firm_name'] ?? ''), (string)($_POST['designation'] ?? ''), (string)($_POST['annual_income'] ?? '')]);
+
+$pdo->prepare('INSERT INTO user_physical_attributes (user_id, height_cm, weight_kg, gotra, horoscope, handicapped) VALUES (?, ?, ?, ?, ?, ?)')
+    ->execute([$newId, $heightCm, $weightKg, (string)($_POST['star'] ?? ''), (string)($_POST['dosh'] ?? ''), $bloodGroup]);
+
+foreach ($hobbies as $h) {
+    $pdo->prepare('INSERT INTO user_hobbies (user_id, hobby_name) VALUES (?, ?)')
+        ->execute([$newId, $h]);
+}
+$langs = isset($_POST['languages_known']) && is_array($_POST['languages_known']) ? $_POST['languages_known'] : [];
+if ($languagesKnownOther !== '') $langs[] = $languagesKnownOther;
+foreach ($langs as $l) {
+    $pdo->prepare('INSERT INTO user_languages (user_id, language_name) VALUES (?, ?)')
+        ->execute([$newId, $l]);
 }
 
 if (!empty($extra['payment']['method'])) {

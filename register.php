@@ -2,11 +2,18 @@
 require_once __DIR__ . '/session_init.php';
 require_once __DIR__ . '/includes/registration-config.php';
 require_once __DIR__ . '/includes/registration-masters-db.php';
+
+// Ensure user has passed the eligibility check
+if (empty($_SESSION['verified_email'])) {
+    header('Location: eligibility.php');
+    exit;
+}
+
 $masters = sathi_registration_masters_from_db();
 require_once __DIR__ . '/config/database.php';
 $payment_enabled = sathi_site_setting('payment_enabled', '0') === '1';
 
-$pageTitle = 'Register ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Shadikibaat | Marriage Bureau Onboarding';
+$pageTitle = 'Register – Shadikibaat | Marriage Bureau Onboarding';
 $bodyClass = 'reg-page reg-page-register';
 $extraCss = 'register-wizard.css';
 $hideNavLinks = true;
@@ -50,34 +57,8 @@ include 'header.php';
                         <h2 class="reg-section-title">Basic Information</h2>
                         <div class="reg-grid">
 
-                            <!-- 1. Are You Digambar Jain -->
-                            <div<?php echo sathi_reg_field_wrap_attrs('digamber_jain', 'reg-grid-full'); ?>>
-                                <div class="reg-grid-full" style="background: #fff0f5; padding: 15px; border-radius: 8px; border: 1px solid #fbcfe8;">
-                                    <p style="font-size:15px; font-weight:700; color:#9d174d; margin-bottom:10px;">Are You Digambar Jain ? (परिचय सम्मेलन सिर्फ दिगम्बर जैन के लिये है) <span style="color:red;">*</span></p>
-                                    <div style="display:flex; gap:20px;">
-                                        <label style="font-weight:600; cursor:pointer;"><input type="radio" name="digamber" value="yes" checked style="margin-right:5px;"> Yes / हाँ</label>
-                                        <label style="font-weight:600; cursor:pointer;"><input type="radio" name="digamber" id="digamber_no" value="no" style="margin-right:5px;"> No / ना</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <script>
-                                document.querySelectorAll('input[name="digamber"]').forEach(radio => {
-                                    radio.addEventListener('change', function() {
-                                        if (this.value === 'no') {
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Registration Not Allowed',
-                                                text: 'This matrimony is exclusively for Digambar Jains.',
-                                                confirmButtonColor: '#e94e77',
-                                                allowOutsideClick: false
-                                            }).then(() => {
-                                                window.location.href = 'index.php';
-                                            });
-                                        }
-                                    });
-                                });
-                            </script>
+                            <!-- 1. Are You Digambar Jain (Hidden) -->
+                            <input type="hidden" name="digamber" value="yes">
 
                             <!-- Mandir Verification Details -->
                             <div class="reg-grid-full" style="background: #fdf2f8; padding: 15px; border-radius: 8px; border: 1px solid #fbcfe8; margin-bottom: 15px;">
@@ -159,14 +140,8 @@ include 'header.php';
                                 </div>
                             </div>
 
-                            <!-- 2. Email -->
-                            <div<?php echo sathi_reg_field_wrap_attrs('email'); ?>>
-                                <div class="reg-float">
-                                    <input type="email" id="email" name="email" placeholder=" " <?php echo sathi_reg_field_required_attr('email'); ?> autocomplete="email">
-                                    <label for="email">Email / ईमेल / ઇમેઇલ</label>
-                                    <span class="reg-error-msg">Enter a valid email / एक मान्य ईमेल दर्ज करें / માન્ય ઇમેઇલ દાખલ કરો</span>
-                                </div>
-                            </div>
+                            <!-- 2. Email (Hidden, verified from eligibility.php) -->
+                            <input type="hidden" id="email" name="email" value="<?php echo htmlspecialchars($_SESSION['verified_email'] ?? ''); ?>">
 
                             <!-- Password -->
                             <div class="reg-float">
@@ -902,7 +877,7 @@ include 'header.php';
                 .then(data => {
                     if (data.ok) {
                         localStorage.removeItem('sathi_reg_draft');
-                        window.location.href = 'index.php';
+                        window.location.href = 'pending.php';
                     } else {
                         Swal.fire({icon: 'error', text: data.error || 'Registration failed', confirmButtonColor: '#e94e77'});
                         btnSubmit.disabled = false;
@@ -957,9 +932,9 @@ include 'header.php';
                     for (const key of fields) {
                         const el = form.elements[key];
                         if (!el) continue;
+                        if (el.tagName === 'INPUT' && el.type === 'hidden') continue;
 
                         if (el instanceof RadioNodeList || (el.length && !el.tagName)) {
-                            // Multiple elements (checkboxes or radios)
                             const valArray = Array.isArray(data[key]) ? data[key] : [data[key]];
                             for (let i = 0; i < el.length; i++) {
                                 if (el[i].type === 'checkbox' || el[i].type === 'radio') {

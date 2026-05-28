@@ -182,7 +182,7 @@ if ($adsQuery) {
                     AI-powered matching system and verified community.</p>
                 <p>With over a decade of experience and millions of happy couples, we remain India's most trusted
                     matrimonial platform — connecting hearts across communities, cultures, and borders.</p>
-                <button class="btn-outline" onclick="location.href='register.php'">Make Your Profile →</button>
+                <button class="btn-outline" onclick="location.href='eligibility.php'">Make Your Profile →</button>
             </div>
             <div class="about-stats">
                 <div class="about-stat-item">

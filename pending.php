@@ -3,7 +3,7 @@ require_once __DIR__ . '/session_init.php';
 
 // If not logged in, go to register
 if (empty($_SESSION['sathi_user_id'])) {
-    header('Location: register.php');
+    header('Location: eligibility.php');
     exit;
 }
 

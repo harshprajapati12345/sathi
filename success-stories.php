@@ -123,7 +123,7 @@ include 'header.php';
         </div>
 
         <div class="page-cta-wrap" style="text-align: center; margin-top: 60px;">
-            <a href="register.php" class="btn-cta" style="padding: 15px 40px; text-decoration: none;">Your story could be next</a>
+            <a href="eligibility.php" class="btn-cta" style="padding: 15px 40px; text-decoration: none;">Your story could be next</a>
         </div>
     </div>
 </main>

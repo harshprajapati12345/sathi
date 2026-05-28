@@ -34,9 +34,9 @@ function sathi_require_approval() {
 
     // 2. If NOT logged in -> Force them to Register (except for public pages)
     if (!$isLoggedIn) {
-        $public = ['register.php', 'login.php', 'logout.php', 'about.php', 'contact.php'];
+        $public = ['register.php', 'eligibility.php', 'login.php', 'logout.php', 'about.php', 'contact.php'];
         if (!in_array($currentFile, $public)) {
-            header("Location: register.php");
+            header("Location: login.php");
             exit();
         }
         return;

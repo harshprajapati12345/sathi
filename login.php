@@ -27,7 +27,7 @@ include 'header.php';
                     <button type="submit" class="reg-btn reg-btn-primary" style="width: 100%; justify-content: center;">Login / लॉग इन / લૉગિન</button>
                 </div>
                 <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
-                    New here? <a href="register.php" style="color: var(--brand, #f45c93); font-weight: 600;">Create an account</a>
+                    New here? <a href="eligibility.php" style="color: var(--brand, #f45c93); font-weight: 600;">Create an account</a>
                 </p>
             </form>
         </div>

@@ -116,6 +116,21 @@ $bro_married = (int) ($member['bro_married'] ?? 0);
 $sis_total = (int) ($member['sis_total'] ?? 0);
 $sis_married = (int) ($member['sis_married'] ?? 0);
 
+// Extra Fields
+$mandir_name = htmlspecialchars((string) ($member['mandir_name'] ?? 'N/A'));
+$subcast_name = htmlspecialchars((string) ($member['subcast_name'] ?? 'N/A'));
+$complexion_pincode = htmlspecialchars((string) ($member['complexion'] ?? 'N/A'));
+$height_cm = (int) ($member['height_cm'] ?? 0);
+$weight_kg = (int) ($member['weight_kg'] ?? 0);
+$handicapped = htmlspecialchars((string) ($member['blood_group'] ?? 'No'));
+
+$ref1_name = htmlspecialchars((string) ($member['reference_person_1_name'] ?? 'N/A'));
+$ref1_mobile = htmlspecialchars((string) ($member['reference_person_1_mobile'] ?? 'N/A'));
+$ref1_rel = htmlspecialchars((string) ($member['reference_person_1_relation'] ?? 'N/A'));
+$ref2_name = htmlspecialchars((string) ($member['reference_person_2_name'] ?? 'N/A'));
+$ref2_mobile = htmlspecialchars((string) ($member['reference_person_2_mobile'] ?? 'N/A'));
+$ref2_rel = htmlspecialchars((string) ($member['reference_person_2_relation'] ?? 'N/A'));
+
 $about_text = nl2br(htmlspecialchars((string) ($member['about_me'] ?? 'N/A')));
 $relatives = nl2br(htmlspecialchars((string) ($member['relative_details'] ?? 'N/A')));
 $hobbies = htmlspecialchars((string) ($member['hobbies'] ?? 'N/A'));
@@ -299,6 +314,18 @@ $languages = htmlspecialchars((string) ($member['language_known'] ?? 'N/A'));
                                     <td style="padding:12px 0; color:#888;">Gotra</td>
                                     <td style="padding:12px 0; color:var(--match-pink); font-weight:800; text-align:right;"><?php echo $gotra; ?></td>
                                 </tr>
+                                <tr>
+                                    <td style="padding:12px 0; color:#888;">Mandir</td>
+                                    <td style="padding:12px 0; color:#333; font-weight:600; text-align:right;"><?php echo $mandir_name; ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:12px 0; color:#888;">Subcast</td>
+                                    <td style="padding:12px 0; color:#333; font-weight:600; text-align:right;"><?php echo $subcast_name; ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:12px 0; color:#888;">Handicapped / Physical Deficiency</td>
+                                    <td style="padding:12px 0; color:#333; font-weight:600; text-align:right;"><?php echo $handicapped; ?></td>
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -315,7 +342,9 @@ $languages = htmlspecialchars((string) ($member['language_known'] ?? 'N/A'));
                                 <div><small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:3px;">Birth Place</small><span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $birth_place; ?></span></div>
                                 <div><small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:3px;">Star (Mama Gotra)</small><span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $star; ?></span></div>
                                 <div><small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:3px;">Rasi</small><span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $rasi; ?></span></div>
-                                <div style="grid-column: 1/-1;"><small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:3px;">Manglik (Dosh)</small><span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $dosh; ?></span></div>
+                                <div><small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:3px;">Manglik (Dosh)</small><span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $dosh; ?></span></div>
+                                <div><small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:3px;">Height</small><span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $height_cm > 0 ? $height_cm . ' cm' : 'N/A'; ?></span></div>
+                                <div><small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:3px;">Weight</small><span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $weight_kg > 0 ? $weight_kg . ' kg' : 'N/A'; ?></span></div>
                             </div>
                         </div>
                     </div>
@@ -364,6 +393,10 @@ $languages = htmlspecialchars((string) ($member['language_known'] ?? 'N/A'));
                             <div style="margin-bottom:20px;">
                                 <small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:5px;">Permanent Address</small>
                                 <span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo htmlspecialchars((string)($member['permanent_address'] ?? 'N/A')); ?></span>
+                            </div>
+                            <div style="margin-bottom:20px;">
+                                <small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:5px;">Permanent Address Pin Code</small>
+                                <span style="color:#333; font-weight:600; font-size:1.05rem;"><?php echo $complexion_pincode; ?></span>
                             </div>
                             <div>
                                 <small style="display:block; color:#aaa; font-size:0.75rem; font-weight:700; margin-bottom:5px;">Native Location</small>
@@ -432,6 +465,27 @@ $languages = htmlspecialchars((string) ($member['language_known'] ?? 'N/A'));
                             <div style="margin-bottom:15px;">
                                 <strong style="display:block; color:#222; margin-bottom:5px;">Preferences / Relative Details:</strong>
                                 <?php echo $relatives; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mandir References -->
+                    <div style="grid-column: 1/-1;">
+                        <h4 style="font-size:1.2rem; color:#222; font-weight:800; margin-bottom:15px; display:flex; align-items:center;">
+                            <i class="fas fa-handshake" style="color:#16a085; margin-right:12px; font-size:1.4rem;"></i> Mandir Reference Persons
+                        </h4>
+                        <div style="background:#fff; border-radius:18px; padding:25px; border:1px solid #eee; display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+                            <div>
+                                <h5 style="margin:0 0 10px 0; color:#333; font-size:1rem;">Reference 1</h5>
+                                <div style="margin-bottom:8px;"><small style="color:#aaa; font-weight:700;">Name:</small> <span style="font-weight:600;"><?php echo $ref1_name; ?></span></div>
+                                <div style="margin-bottom:8px;"><small style="color:#aaa; font-weight:700;">Mobile:</small> <span style="font-weight:600;"><?php echo $ref1_mobile; ?></span></div>
+                                <div><small style="color:#aaa; font-weight:700;">Relation:</small> <span style="font-weight:600;"><?php echo $ref1_rel; ?></span></div>
+                            </div>
+                            <div>
+                                <h5 style="margin:0 0 10px 0; color:#333; font-size:1rem;">Reference 2</h5>
+                                <div style="margin-bottom:8px;"><small style="color:#aaa; font-weight:700;">Name:</small> <span style="font-weight:600;"><?php echo $ref2_name; ?></span></div>
+                                <div style="margin-bottom:8px;"><small style="color:#aaa; font-weight:700;">Mobile:</small> <span style="font-weight:600;"><?php echo $ref2_mobile; ?></span></div>
+                                <div><small style="color:#aaa; font-weight:700;">Relation:</small> <span style="font-weight:600;"><?php echo $ref2_rel; ?></span></div>
                             </div>
                         </div>
                     </div>
