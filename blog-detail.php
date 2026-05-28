@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/helpers/auth_helper.php';
+require_once __DIR__ . '/config/database.php';
 $db = sathi_db();
 
 $slug = $_GET['slug'] ?? '';
